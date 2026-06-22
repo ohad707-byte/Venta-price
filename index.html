@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VENTA - ממשק הצעות מחיר לצרכן</title>
+<style>
+:root{--blue:#123a5b;--blue2:#1d5b92;--gold:#d89422;--bg:#eef3f8;--line:#d9e1ea;--text:#162333}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;direction:rtl;background:var(--bg);color:var(--text)} button,input,select{font-family:inherit}
+.appbar{background:linear-gradient(135deg,#0d2b45,#1d5b92);color:white;padding:18px 24px;box-shadow:0 4px 20px rgba(0,0,0,.18)}
+.wrap{max-width:1180px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px} .logo{font-size:34px;font-weight:900} .sub{opacity:.82;font-size:13px}
+.layout{max-width:1180px;margin:22px auto;padding:0 14px;display:grid;grid-template-columns:1fr 390px;gap:18px} .card{background:white;border:1px solid var(--line);border-radius:16px;box-shadow:0 4px 18px rgba(14,40,70,.08);padding:18px}
+.title{font-size:17px;font-weight:900;color:var(--blue);margin-bottom:12px} .notice{background:#f7fbff;border:1px solid #bcd5ed;color:#174d80;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:13px;line-height:1.55}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px} .field{margin-bottom:12px} label{display:block;font-weight:800;color:#264761;font-size:13px;margin-bottom:6px} input,select{width:100%;border:1.5px solid #cfd8e3;border-radius:10px;padding:11px 12px;font-size:14px;outline:none;background:white} input:focus,select:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(30,90,145,.12)}
+.searchrow{display:flex;gap:8px}
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.filterBtn{border:1px solid #d4dee8;border-radius:999px;background:white;color:#173e61;font-weight:900;padding:8px 12px;cursor:pointer}.filterBtn.active{background:#173e61;color:white;border-color:#173e61}.bulkPromoBox{border:1px solid #d9e1ea;background:#fbfdff;border-radius:14px;padding:12px;margin:14px 0}.bulkPromoBox textarea{width:100%;min-height:110px;border:1.5px solid #cfd8e3;border-radius:10px;padding:10px;font-family:Arial,Helvetica,sans-serif;resize:vertical;direction:ltr;text-align:left}.bulkPromoHelp{font-size:12px;color:#687887;line-height:1.65;margin-top:7px}.promoStat{display:inline-block;background:#fff1d6;color:#9b5b00;border:1px solid #f0c26c;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900}
+.searchrow{display:flex;gap:8px} .searchrow input{flex:1} .smallbtn{border:0;border-radius:10px;background:#e9eef5;color:#25455f;font-weight:800;padding:0 14px;cursor:pointer}
+.productList{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:12px} .product{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px;border-bottom:1px solid #edf0f4;cursor:pointer;background:white} .product:hover{background:#f1f7ff} .product.onSale{border-right:4px solid var(--gold);background:#fffaf0}.pname{font-weight:800;font-size:13px} .pmeta{font-size:12px;color:#6b7785;margin-top:4px}.saleBadge{display:inline-block;background:#fff1d6;color:#9b5b00;border:1px solid #f0c26c;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:900;margin:4px 0}.saleNote{font-size:11px;color:#9b5b00;margin-top:3px}.pprice{text-align:left;white-space:nowrap}.consumer{color:var(--blue2);font-weight:900;font-size:13px}.regularLabel{font-size:10px;color:#7a8794;font-weight:700}.net{font-weight:900;color:var(--blue2)}.saleOption{margin-top:5px;border:1px solid #f2b6b6;background:#fff4f4;color:#c01818;border-radius:10px;padding:5px 8px;font-weight:900}.saleOption small{display:block;font-size:10px;color:#b00000;font-weight:800}.salePrice{font-weight:900;color:#c01818}.cartPromoPrice{display:block;color:#c01818;font-weight:900;margin-top:3px}.quotePromoPrice{color:#c01818;font-weight:900}.empty{padding:24px;text-align:center;color:#7a8794}
+.cartLine{display:grid;grid-template-columns:1fr 86px 96px 28px;gap:8px;align-items:center;border-bottom:1px solid #edf0f4;padding:11px 0} .cartName{font-size:13px;font-weight:800} .cartMeta{font-size:11px;color:#7a8794;margin-top:3px} .qty{display:flex;align-items:center;justify-content:center;gap:4px} .qty button{width:26px;height:26px;border:1px solid #ccd6e0;border-radius:7px;background:white;cursor:pointer} .qty span{min-width:22px;text-align:center;font-weight:900} .del{border:0;background:white;color:#c0392b;font-size:18px;cursor:pointer}
+.sum{background:#f7f9fc;border-radius:12px;padding:12px;margin-top:12px} .sumrow{display:flex;justify-content:space-between;line-height:1.9;font-size:13px} .sumrow.total{font-size:17px;font-weight:900;border-top:1px solid #d8e1ea;margin-top:6px;padding-top:8px;color:var(--blue)} .primary{width:100%;border:0;border-radius:12px;background:linear-gradient(135deg,#1d5b92,#123a5b);color:white;font-size:16px;font-weight:900;padding:14px;margin-top:12px;cursor:pointer} .primary:disabled{background:#b8c2cc;cursor:not-allowed} .secondary{width:100%;border:1px solid #b9c6d3;border-radius:12px;background:white;color:var(--blue);font-weight:900;padding:12px;margin-top:8px;cursor:pointer}.discountGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 12px}.discBtn{border:2px solid #d4dee8;border-radius:12px;background:#fff;padding:13px 8px;cursor:pointer;font-weight:900;color:#183b5d}.discBtn small{display:block;font-size:10px;color:#687887;margin-top:3px}.discBtn.active{background:linear-gradient(135deg,#1d5b92,#123a5b);color:white;border-color:#123a5b}.discBtn.active small{color:#dcefff}.discBtn.promoDisc{border-color:#f0b8b8;color:#b00000;background:#fff5f5}.discBtn.promoDisc small{color:#b00000}.discBtn.promoDisc.active{background:linear-gradient(135deg,#d62828,#9f1616);color:#fff;border-color:#9f1616}.discBtn.promoDisc.active small{color:#ffe3e3}
+.preview{display:none;max-width:920px;margin:20px auto 60px;background:white;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 24px rgba(14,40,70,.12);overflow:hidden} .toolbar{display:flex;gap:8px;justify-content:space-between;align-items:center;background:#173e61;color:white;padding:12px 16px} .toolbar button{border:0;border-radius:9px;padding:10px 14px;font-weight:900;cursor:pointer} .toolbar .pdf{background:var(--gold);color:white} .toolbar .back{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.25)} .pages{background:#dfe7ef;padding:16px}
+.printPage{width:794px;min-height:1123px;margin:0 auto 16px;background:white;padding:38px 44px;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.12);page-break-after:always;overflow:hidden} .qhead{display:flex;justify-content:space-between;border-bottom:2px solid #c7c7c7;padding-bottom:10px} .qlogo{font-size:34px;font-weight:900;color:#173e61} .qcompany{font-size:12px;line-height:1.55;font-weight:700} .qtitle{text-align:center;font-size:20px;font-weight:900;text-decoration:underline;margin:18px 0} .qmeta{display:flex;justify-content:space-between;margin-bottom:18px;line-height:1.8} .dates{direction:ltr;text-align:left} .qtable{width:100%;border-collapse:collapse;font-size:12px} .qtable th,.qtable td{border:1px solid #333;padding:7px;text-align:center;vertical-align:middle} .qtable th{background:#e7e7e7} .qtable .desc{text-align:right} .qsummary{width:270px;border-collapse:collapse;margin-top:14px} .qsummary td{border:1px solid #333;padding:7px} .qsummary td:first-child{background:#f0f0f0;font-weight:900} .qsummary tr:last-child td{background:#ddd;font-weight:900} .terms{font-size:12px;line-height:1.9;margin-top:22px} .footer{position:absolute;bottom:26px;left:44px;right:44px;border-top:1px solid #ccc;text-align:center;padding-top:8px;font-weight:900;font-size:12px}
+.techTitle{font-size:22px;font-weight:900;color:#173e61;border-bottom:2px solid #173e61;padding-bottom:10px;margin-bottom:16px} .techGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px} .techBox{border:1px solid #ccd6e0;border-radius:10px;padding:12px;line-height:1.6} .techBox b{display:block;color:#173e61;margin-bottom:5px} .catalogPage{padding:0;display:flex;align-items:center;justify-content:center} .catalogImg{max-width:600px;width:100%;height:auto;object-fit:contain;display:block;margin:0 auto}
+
+.adminToggle{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:white;border-radius:12px;padding:11px 16px;font-weight:900;cursor:pointer}
+.adminPanel{display:none;max-width:1180px;margin:22px auto;padding:0 14px}.adminPanel.show{display:block}.adminHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}.adminActions{display:flex;gap:8px;flex-wrap:wrap}.adminBtn{border:0;border-radius:10px;background:#173e61;color:white;font-weight:900;padding:10px 13px;cursor:pointer}.adminBtn.light{background:#e9eef5;color:#25455f}.adminBtn.danger{background:#b83232}.adminForm{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.adminForm .wide{grid-column:span 2}.adminTableWrap{margin-top:14px;max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:12px}.adminTable{width:100%;border-collapse:collapse;font-size:13px}.adminTable th,.adminTable td{border-bottom:1px solid #edf0f4;padding:9px;text-align:right;vertical-align:top}.adminTable th{position:sticky;top:0;background:#eef3f8;color:#173e61;z-index:1}.adminTable button{border:0;border-radius:8px;padding:7px 9px;cursor:pointer;font-weight:800}.adminSearch{max-width:360px}.hint{font-size:12px;color:#687887;line-height:1.5;margin-top:8px}
+@media(max-width:900px){.adminForm{grid-template-columns:1fr}.adminForm .wide{grid-column:auto}.adminHead{align-items:stretch;flex-direction:column}}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.printPage{width:100%;min-height:auto}.grid2{grid-template-columns:1fr}}
+@media print{@page{size:A4;margin:0} body{background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact} .appbar,.layout,.toolbar{display:none!important} .preview{display:block!important;border:0;box-shadow:none;margin:0;max-width:none} .pages{background:white;padding:0} .printPage{box-shadow:none;margin:0;width:210mm;height:297mm;min-height:297mm;page-break-after:always;padding:12mm 12mm;overflow:hidden} .catalogPage{padding:0} .catalogImg{width:210mm;height:297mm;object-fit:contain} }
+</style>
+
+<style>
+/* VENTA_ORDER_EMAIL_MODULE */
+.venta-order-email-box{
+  direction:rtl;
+  margin:16px 0 0;
+  padding:16px;
+  border:2px solid #173f63;
+  border-radius:14px;
+  background:#f8fbff;
+  box-shadow:0 8px 24px rgba(0,0,0,.06);
+}
+.venta-order-email-box h3{margin:0 0 10px;color:#173f63;font-size:16px;font-weight:900}
+.venta-order-email-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.venta-order-email-box select,.venta-order-email-box input{
+  width:100%;padding:11px 12px;border:1.5px solid #cfd8e3;border-radius:10px;font-size:14px;font-family:inherit;background:white;
+}
+.venta-order-email-box select:focus,.venta-order-email-box input:focus{outline:none;border-color:#1d5b92;box-shadow:0 0 0 3px rgba(30,90,145,.12)}
+.venta-order-email-box button{
+  padding:12px 14px;border:0;border-radius:10px;font-weight:900;cursor:pointer;font-size:14px;
+}
+.venta-order-email-box .venta-order-actions{display:flex;gap:10px;margin-top:10px}
+.venta-order-email-box .venta-order-actions button{flex:1}
+#ventaCreateOrderBtn{background:#173f63;color:white}
+#ventaSendOrderEmailBtn{background:#b91c1c;color:white}
+#ventaOrderMailStatus{margin-top:10px;color:#475569;font-weight:700;font-size:13px}
+.venta-order-summary{font-size:12px;color:#5a6b7a;margin-top:4px}
+@media(max-width:700px){.venta-order-email-grid{grid-template-columns:1fr}}
+</style>
+
+</head>
+<body>
+<div class="appbar"><div class="wrap"><div><div class="logo">VENTA</div><div class="sub">ממשק הצעות מחיר לצרכן עם בחירת הנחה</div></div><div style="display:flex;gap:10px;align-items:center"><div id="topCount"></div></div></div></div>
+<div class="layout" id="formView">
+ <main class="card"><div class="title">בחירת מוצרים</div><div class="notice">איך להשתמש: הזן שם לקוח, חפש מוצר לפי שם או מק״ט, הוסף כמויות, צור הצעת מחיר, ואז לחץ “שמור PDF”.</div><div class="searchrow"><input id="searchInput" placeholder="חיפוש לפי שם מוצר, מק״ט, קטגוריה..." autocomplete="off"><button class="smallbtn" id="clearSearch">נקה</button></div><div class="filterbar"><button class="filterBtn active" data-product-filter="all" type="button">כל המוצרים</button><button class="filterBtn" data-product-filter="promo" type="button">רק מבצעים</button><button class="filterBtn" data-product-filter="noPromo" type="button">ללא מבצע</button></div><div class="productList" id="productList"></div></main>
+ <aside class="card"><div class="title">פרטי הצעה</div><div class="field"><label>שם לקוח</label><input id="customerName" placeholder="לדוגמה: אבי כהן"></div><div class="grid2"><div class="field"><label>טלפון</label><input id="customerPhone" placeholder="אופציונלי"></div><div class="field"><label>פרויקט</label><input id="projectName" placeholder="אופציונלי"></div></div><div class="field"><label>אזור / איש מכירות</label><select id="salesArea"><option value="">בחר אזור</option><option>צפון</option><option>מפיצים צפון</option><option>דרום</option><option>מפיצים דרום</option><option>מרכז</option><option>מפיצים מרכז</option><option>מוטי</option><option>משרד</option><option>ירושלים</option></select></div><div class="field"><label>בחירת הנחה ללקוח</label><div class="discountGrid"><button type="button" class="discBtn active" data-disc="35">35%<small>לקוח מועדף</small></button><button type="button" class="discBtn" data-disc="25">25%<small>הנחה בינונית</small></button><button type="button" class="discBtn" data-disc="10">10%<small>הנחה בסיסית</small></button><button type="button" class="discBtn promoDisc" data-disc="promo">מבצע<small>רק למוצרים במבצע</small></button></div></div><div class="notice">מחירון: <b>מחיר צרכן</b> | בחירה נוכחית: <b id="discLabel">35%</b> | מע״מ: <b>18%</b></div><div class="title">מוצרים בהצעה</div><div id="cart"></div><div id="cartSummary" class="sum"></div><button class="primary" id="createQuote" disabled>צור הצעת מחיר</button><button class="secondary" id="mainPdfBtn" disabled>הורד PDF להצעה</button><div id="quotePdfBox" class="notice" style="display:none;margin-top:10px"></div><div id="ventaOrderBoxForm"></div><button class="secondary" id="resetAll">איפוס</button><div class="notice" style="margin-top:12px">נטענו <b id="productCount"></b> מוצרים ו־<b id="catalogCountMain"></b> דפי קטלוג.</div></aside>
+</div>
+<!-- Admin dashboard removed from sales interface. Use /admin.html for manager access only. -->
+<section class="preview" id="previewView"><div class="toolbar"><button type="button" class="back" id="backBtn">חזור לעריכה</button><b id="previewTitle">הצעת מחיר</b><div style="display:flex;gap:8px"><button type="button" class="back" id="htmlBtn">פתח HTML הצעה</button><button type="button" class="pdf" id="pdfBtn">הורד PDF אמיתי</button></div></div><div class="pages" id="pages"></div><div id="ventaOrderBoxPreview" style="padding:0 16px 20px"></div></section>
+<script>
+let PRODUCTS = [{"sku":"130499400","name":"ונטה 4 צול 100 החדש גלי + שסתום","category":"דגמי קיר","size":"4\"","airflow":"130 מק\"ש","power":"","warranty":"5","price":102.0,"techPages":[6]},{"sku":"130499411","name":"ונטה 4 צול 100 גלי + השהייה","category":"דגמי קיר","size":"4\"","airflow":"130 מק\"ש","power":"","warranty":"5","price":201.6,"techPages":[6]},{"sku":"130499000","name":"ונטה 4 צול 100S","category":"דגמי קיר","size":"4\"","airflow":"110 מק\"ש","power":"","warranty":"5","price":310.24,"techPages":[6]},{"sku":"130499010","name":"ונטה 4 צול 100S עם השהייה","category":"דגמי קיר","size":"4\"","airflow":"110 מק\"ש","power":"","warranty":"5","price":394.24,"techPages":[6]},{"sku":"130699666","name":"ונטה 6 צול 150 מייסב כדורי","category":"דגמי קיר","size":"6\"","airflow":"320 מק\"ש","power":"","warranty":"5","price":143.36,"techPages":[6]},{"sku":"130699600","name":"ונטה 6 צול 150 גלי עם שסתום","category":"דגמי קיר","size":"6\"","airflow":"320 מק\"ש","power":"","warranty":"5","price":143.36,"techPages":[6]},{"sku":"130699321","name":"ונטה 6 צול 150 גלי עם השהייה","category":"דגמי קיר","size":"6\"","airflow":"320 מק\"ש","power":"","warranty":"5","price":210.0,"techPages":[6]},{"sku":"130699000","name":"ונטה 6 צול 150S","category":"דגמי קיר","size":"6\"","airflow":"320 מק\"ש","power":"","warranty":"5","price":560.0,"techPages":[7]},{"sku":"130699010","name":"ונטה 6 צול 150S + השהייה","category":"דגמי קיר","size":"6\"","airflow":"320 מק\"ש","power":"","warranty":"5","price":644.0,"techPages":[7]},{"sku":"130899000","name":"ונטה 8 צול 200S","category":"דגמי קיר","size":"8\"","airflow":"650 מק\"ש","power":"","warranty":"1","price":846.0,"techPages":[7]},{"sku":"150899888","name":"ונטה 8 צול כנף נירוסטה כולל ווסת","category":"דגמי קיר","size":"8\"","airflow":"1300 מק\"ש","power":"","warranty":"1","price":508.0,"techPages":[8]},{"sku":"130899010","name":"ונטה 8 צול 200S עם השהייה","category":"דגמי קיר","size":"8\"","airflow":"650 מק\"ש","power":"","warranty":"1","price":1025.92,"techPages":[7]},{"sku":"130499904","name":"ונטה \"4 דגם 100S-ND/ALBA חלק","category":"דגמי קיר","size":"4\"","airflow":"95 מק\"ש","power":"","warranty":"5","price":244.16,"techPages":[7]},{"sku":"130499944","name":"ונטה \"4 דגם 100S-ND/ONDA פסים","category":"דגמי קיר","size":"4\"","airflow":"95 מק\"ש","power":"","warranty":"5","price":244.16,"techPages":[7]},{"sku":"130699906","name":"ונטה \"6 דגם 150S-ND/ALBA חלק","category":"דגמי קיר","size":"6\"","airflow":"280 מק\"ש","power":"","warranty":"5","price":300.0,"techPages":[7]},{"sku":"130699966","name":"ונטה \"6 דגם 150S-ND/ONDA פסים","category":"דגמי קיר","size":"6\"","airflow":"280 מק\"ש","power":"","warranty":"5","price":300.0,"techPages":[7]},{"sku":"130499130","name":"ונטה \"4 דגם VENTO100 לבן","category":"דגמי קיר","size":"4\"","airflow":"95 מק\"ש","power":"","warranty":"5","price":184.0,"techPages":[10]},{"sku":"130499402","name":"ונטה \"4 דגם VENTO100 שחור","category":"דגמי קיר","size":"4\"","airflow":"95 מק\"ש","power":"","warranty":"5","price":184.0,"techPages":[10]},{"sku":"130499403","name":"ונטה \"4 דגם VENTO100 כסוף","category":"דגמי קיר","size":"4\"","airflow":"95 מק\"ש","power":"","warranty":"5","price":184.0,"techPages":[10]},{"sku":"130699320","name":"ונטה \"6 דגם VENTO150 לבן","category":"דגמי קיר","size":"6\"","airflow":"300 מק\"ש","power":"","warranty":"5","price":215.0,"techPages":[10]},{"sku":"130699602","name":"ונטה \"6 דגם VENTO150 שחור","category":"דגמי קיר","size":"6\"","airflow":"300 מק\"ש","power":"","warranty":"5","price":215.0,"techPages":[10]},{"sku":"130699603","name":"ונטה \"6 דגם VENTO150 כסף","category":"דגמי קיר","size":"6\"","airflow":"300 מק\"ש","power":"","warranty":"5","price":215.0,"techPages":[10]},{"sku":"160499220","name":"ונטה 4 צול צנטריפוגלית CF-100","category":"דגם קיר טורבו + שסתום","size":"4\"","airflow":"90 מק\"ש","power":"","warranty":"1","price":278.28,"techPages":[14]},{"sku":"160499216","name":"ונטה 4 צול צנטריפוגלית CF-100 + השהייה","category":"דגם קיר טורבו + שסתום","size":"4\"","airflow":"90 מק\"ש","power":"","warranty":"1","price":416.43,"techPages":[14]},{"sku":"160499213","name":"ונטה 4 צול צנטריפוגלית CF-200","category":"דגם קיר טורבו + שסתום","size":"4\"","airflow":"110 מק\"ש","power":"","warranty":"1","price":477.98,"techPages":[14]},{"sku":"160499214","name":"ונטה 4 צול צנטריפוגלית CF-200 + השהייה","category":"דגם קיר טורבו + שסתום","size":"4\"","airflow":"110 מק\"ש","power":"","warranty":"1","price":605.56,"techPages":[14]},{"sku":"160499201","name":"ונטה 4 צול צנטריפוגלית קומפקט 200","category":"דגם קיר טורבו + שסתום","size":"4\"","airflow":"160 מק\"ש","power":"","warranty":"1","price":621.6,"techPages":[15]},{"sku":"160499300","name":"ונטה 4 צול צנטריפוגלית קומפקט 300","category":"דגם קיר טורבו + שסתום","size":"4\"","airflow":"250 מק\"ש","power":"","warranty":"1","price":685.44,"techPages":[15]},{"sku":"160499402","name":"DX 200 ונטה 4 צול דקורטיבית צנטריפוגלית טורבו","category":"דגם קיר טורבו + שסתום","size":"4\"","airflow":"110 מק\"ש","power":"","warranty":"1","price":300.0,"techPages":[11]},{"sku":"137599200","name":"ונטה 7.5RX לחלון חד-כווני +תריס קבוע+ מפסק MAS","category":"ונטה חלון דו כיווני וחד-כיווני","size":"7.5\"","airflow":"650 מק\"ש","power":"","warranty":"1","price":1284.0,"techPages":[19]},{"sku":"137599102","name":"ונטה 7.5RX לחלון דו-כווני + רשת + מפסק MA","category":"ונטה חלון דו כיווני וחד-כיווני","size":"7.5\"","airflow":"650 מק\"ש","power":"","warranty":"1","price":1284.0,"techPages":[19]},{"sku":"131299200","name":"ונטה 12RX לחלון דו-כווני + תריס קבוע + מ.ז M.A","category":"ונטה חלון דו כיווני וחד-כיווני","size":"12\"","airflow":"1800 מק\"ש","power":"","warranty":"1","price":1893.4,"techPages":[19]},{"sku":"130699002","name":"ונטה 150R DK","category":"ונטה קיר דו כיווני DK","size":"6\"","airflow":"320 מק\"ש","power":"","warranty":"1","price":671.5,"techPages":[19]},{"sku":"130608002","name":"ונטה 150R DK + צינור + תריס + רשת","category":"ונטה קיר דו כיווני DK","size":"6\"","airflow":"320 מק\"ש","power":"","warranty":"1","price":754.79,"techPages":[19]},{"sku":"137599002","name":"ונטה 7.5R DK + מ.ז MA","category":"ונטה קיר דו כיווני DK","size":"7.5\"","airflow":"650 מק\"ש","power":"","warranty":"1","price":1264.92,"techPages":[19]},{"sku":"137508000","name":"ונטה 7.5R DK +צינור + תריס קבוע + מפסק MA","category":"ונטה קיר דו כיווני DK","size":"7.5\"","airflow":"650 מק\"ש","power":"","warranty":"1","price":1419.34,"techPages":[19]},{"sku":"130899002","name":"ונטה 200R DK","category":"ונטה קיר דו כיווני DK","size":"8\"","airflow":"650 מק\"ש","power":"","warranty":"1","price":1013.32,"techPages":[19]},{"sku":"130808002","name":"ונטה 200R DK + צינור+רשת","category":"ונטה קיר דו כיווני DK","size":"8\"","airflow":"650 מק\"ש","power":"","warranty":"1","price":1166.01,"techPages":[19]},{"sku":"131299002","name":"ונטה 12R DK פלסטיק + מ.ז MA","category":"ונטה קיר דו כיווני DK","size":"12\"","airflow":"1800 מק\"ש","power":"","warranty":"1","price":1736.45,"techPages":[19]},{"sku":"131208002","name":"ונטה 12R DK + צינור+רשת + מפסק","category":"ונטה קיר דו כיווני DK","size":"12\"","airflow":"1800 מק\"ש","power":"","warranty":"1","price":1893.4,"techPages":[19]},{"sku":"131208001","name":"ונטה 12R DK + צינור+ תריס קבוע + מפסק","category":"ונטה קיר דו כיווני DK","size":"12\"","airflow":"1800 מק\"ש","power":"","warranty":"1","price":1893.4,"techPages":[19]},{"sku":"150599215","name":"מפוח קווי, \"5 פלסטיק דגם 125-HF","category":"מפוחים קוויים סדרת HF","size":"5\"","airflow":"330 מק\"ש","power":"","warranty":"2","price":480.0,"techPages":[20,21,22,23]},{"sku":"150499005","name":"מפוח צנטריפוגלי IL100","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"4\"","airflow":"250 מק\"ש","power":"","warranty":"2","price":569.0,"techPages":[30]},{"sku":"150599005","name":"מפוח צנטריפוגלי IL125","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"5\"","airflow":"350 מק\"ש","power":"","warranty":"2","price":658.04,"techPages":[30]},{"sku":"150699005","name":"מפוח צנטריפוגלי IL150","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"6\"","airflow":"430 מק\"ש","power":"","warranty":"2","price":646.0,"techPages":[30]},{"sku":"150899005","name":"מפוח צנטריפוגלי IL200","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"8\"","airflow":"880 מק\"ש","power":"","warranty":"2","price":900.0,"techPages":[30]},{"sku":"151099005","name":"מפוח צנטריפוגלי IL250","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"10\"","airflow":"1250 מק\"ש","power":"","warranty":"2","price":1050.0,"techPages":[30]},{"sku":"151299005","name":"מפוח צנטריפוגלי IL315","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"12\"","airflow":"1700 מק\"ש","power":"","warranty":"2","price":1500.0,"techPages":[30]},{"sku":"150499210","name":"מפוח צנטריפוגלי IL100 עם השהייה","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"4\"","airflow":"250 מק\"ש","power":"","warranty":"2","price":739.89,"techPages":[30,31]},{"sku":"150699210","name":"מפוח צנטריפוגלי IL150 עם השהייה","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"6\"","airflow":"430 מק\"ש","power":"","warranty":"2","price":965.78,"techPages":[30,31]},{"sku":"150899210","name":"מפוח צנטריפוגלי IL200 עם השהייה","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"8\"","airflow":"880 מק\"ש","power":"","warranty":"2","price":1309.54,"techPages":[30,31]},{"sku":"150499994","name":"מושתק CO100 חיצוני דקורטיבי צנטרפוגלי מפוח","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"4\"","airflow":"300 מק\"ש","power":"","warranty":"2","price":1150.0,"techPages":[16]},{"sku":"150699996","name":"מושתק CO150 חיצוני דקורטיבי צנטרפוגלי מפוח","category":"מפוחים צנטריפוגליים קויים דגם צנרת IN LINE","size":"6 \"","airflow":"400 מק\"ש","power":"","warranty":"2","price":1230.0,"techPages":[16]},{"sku":"350099100","name":"שואבי אוויר ניידים כולל פילטרים","category":"שואבי אוויר ניידים כולל פילטר","size":"","airflow":"500 מק\"ש","power":"","warranty":"1","price":3800.0,"techPages":[104]},{"sku":"500086004","name":"פילטר אוויר רגיל(חבילה של 5 יח)","category":"שואבי אוויר ניידים כולל פילטר","size":"","airflow":"","power":"","warranty":"","price":150.0,"techPages":[104]},{"sku":"350086006","name":"פילטר פחם לשואב","category":"שואבי אוויר ניידים כולל פילטר","size":"","airflow":"","power":"","warranty":"","price":450.0,"techPages":[104]},{"sku":"600087200","name":"פילטר למטהר 200","category":"מטהרי אוויר ביתיים","size":"","airflow":"","power":"","warranty":"","price":200.0,"techPages":[112]},{"sku":"600087550","name":"פילטר למטהר 500","category":"מטהרי אוויר ביתיים","size":"","airflow":"","power":"","warranty":"","price":200.0,"techPages":[112]},{"sku":"230099600","name":"מייבש ידיים TURBODRY לבן נירוסטה","category":"מייבשי ידיים","size":"","airflow":"65/מטר לשנייה","power":"","warranty":"1","price":1307.0,"techPages":[108]},{"sku":"230099602","name":"מייבש ידיים TURBODRY כסף נירוסטה","category":"מייבשי ידיים","size":"","airflow":"65/מטר לשנייה","power":"","warranty":"1","price":1307.0,"techPages":[108]},{"sku":"230099601","name":"מייבש ידיים TURBODRY שחור נירוסטה","category":"מייבשי ידיים","size":"","airflow":"65/מטר לשנייה","power":"","warranty":"1","price":1307.0,"techPages":[108]},{"sku":"230099500","name":"מייבש ידיים ULTRADRY לבן נירוסטה","category":"מייבשי ידיים","size":"","airflow":"60/מטר לשנייה","power":"","warranty":"1","price":1230.0,"techPages":[108]},{"sku":"230099502","name":"מייבש ידיים ULTRADRY כסף נירוסטה","category":"מייבשי ידיים","size":"","airflow":"60/מטר לשנייה","power":"","warranty":"1","price":1230.0,"techPages":[108]},{"sku":"230099501","name":"מייבש ידיים ULTRADRY שחור נירוסטה","category":"מייבשי ידיים","size":"","airflow":"60/מטר לשנייה","power":"","warranty":"1","price":1230.0,"techPages":[108]},{"sku":"350099015","name":"GPRO פח שואב אלקטרוני דגם","category":"מייבשי ידיים","size":"","airflow":"350 מק\"ש","power":"","warranty":"1","price":569.0,"techPages":[]},{"sku":"230099700","name":"מייבש שיער דגם TURBO HAIR צבע סגול","category":"מייבשי שיער","size":"","airflow":"","power":"","warranty":"","price":169.0,"techPages":[108]},{"sku":"230099701","name":"מייבש שיער דגם TURBO HAIR צבע כחול","category":"מייבשי שיער","size":"","airflow":"","power":"","warranty":"","price":169.0,"techPages":[108]},{"sku":"111299000","name":"ונטה חד כיווני 12R + מפסק זרם IPX4 MAS","category":"מאוורר תעשייתי פנל חד פאזי כולל מפסק מנוע IP55","size":"12\"","airflow":"1,700 מק\"ש","power":"110 וואט","warranty":"1","price":1250.0,"techPages":[19]},{"sku":"111299002","name":"ונטה דו כיווני 12R + מפסק זרם IPX4 MA","category":"מאוורר תעשייתי פנל חד פאזי כולל מפסק מנוע IP55","size":"12\"","airflow":"1,700 מק\"ש","power":"110 וואט","warranty":"1","price":1381.17,"techPages":[41]},{"sku":"111699002","name":"ונטה דו כיווני 16R + מפסק זרם IP55 MA","category":"מאוורר תעשייתי פנל חד פאזי כולל מפסק מנוע IP55","size":"16\"","airflow":"4,200 מק\"ש","power":"180 וואט","warranty":"1","price":1800.0,"techPages":[41]},{"sku":"112099002","name":"ונטה דו כיווני 20R + מפסק זרם IP55 MA","category":"מאוורר תעשייתי פנל חד פאזי כולל מפסק מנוע IP55","size":"20\"","airflow":"8,000 מק\"ש","power":"450 וואט","warranty":"1","price":2200.0,"techPages":[41]},{"sku":"112499002","name":"ונטה דו כיווני 24R + מפסק זרם IP55 MA","category":"מאוורר תעשייתי פנל חד פאזי כולל מפסק מנוע IP55","size":"24\"","airflow":"8,500 מק\"ש","power":"320 וואט","warranty":"1","price":2400.0,"techPages":[41]},{"sku":"111699003","name":"ונטה פנל תלת פאזי IP55","category":"מאוורר תעשייתי פנל תלת פאזי- מנוע IP55 חייב מפסק הגנה אובר לוד","size":"16\"","airflow":"4,200 מק\"ש","power":"150 וואט","warranty":"1","price":1800.0,"techPages":[41]},{"sku":"112099003","name":"ונטה פנל תלת פאזי IP55","category":"מאוורר תעשייתי פנל תלת פאזי- מנוע IP55 חייב מפסק הגנה אובר לוד","size":"20\"","airflow":"8,000 מק\"ש","power":"400 וואט","warranty":"1","price":2200.0,"techPages":[41]},{"sku":"112499003","name":"ונטה פנל תלת פאזי IP55","category":"מאוורר תעשייתי פנל תלת פאזי- מנוע IP55 חייב מפסק הגנה אובר לוד","size":"24\"","airflow":"10,000 מק\"ש","power":"300 וואט","warranty":"1","price":2400.0,"techPages":[41]},{"sku":"112899003","name":"ונטה פנל תלת פאזי IP55","category":"מאוורר תעשייתי פנל תלת פאזי- מנוע IP55 חייב מפסק הגנה אובר לוד","size":"28\"","airflow":"16,000 מק\"ש","power":"750 וואט","warranty":"1","price":4000.0,"techPages":[41]},{"sku":"113699003","name":"ונטה פנל תלת פאזי IP55","category":"מאוורר תעשייתי פנל תלת פאזי- מנוע IP55 חייב מפסק הגנה אובר לוד","size":"36\"","airflow":"28,000 מק\"ש","power":"1000 וואט","warranty":"1","price":4615.0,"techPages":[41]},{"sku":"113699333","name":"ונטה פנל \"36+עגלה + רשת +אוברלוד+כבל 6 מ'+תקע 16*5","category":"מאוורר תעשייתי פנל תלת פאזי- מנוע IP55 חייב מפסק הגנה אובר לוד","size":"36\"","airflow":"28,000 מק\"ש","power":"1000 וואט","warranty":"1","price":6700.0,"techPages":[40,41]},{"sku":"240099254","name":"U/EL 254 ונטה פנל \"10 מוגן פיצוץ","category":"מאוורר תעשייתי פנל מוגני פיצוץ","size":"10\"","airflow":"1200 מק\"ש","power":"40 וואט","warranty":"1","price":3800.0,"techPages":[40,41]},{"sku":"241299012","name":"U/EL 304 ונטה פנל \"12 מוגן פיצוץ","category":"מאוורר תעשייתי פנל מוגני פיצוץ","size":"12\"","airflow":"1,750 מק\"ש","power":"60 וואט","warranty":"1","price":4600.0,"techPages":[40,41]},{"sku":"241099454","name":"U/EL 454 ונטה פנל \"16 מוגן פיצוץ","category":"מאוורר תעשייתי פנל מוגני פיצוץ","size":"16\"","airflow":"5,000 מק\"ש","power":"180 וואט","warranty":"1","price":5230.0,"techPages":[40,41]},{"sku":"111299012","name":"ונטה פנל \"12 חד פאזי SF 300- חד/דו כיווני + רשת","category":"מאוורר תעשייתי חד כיווני עם מנוע IP 54","size":"12\"","airflow":"1,650 מק\"ש","power":"210 וואט","warranty":"1","price":1120.0,"techPages":[44]},{"sku":"111699016","name":"ונטה פנל \"16 חד פאזי SF 400 + רשת מגן","category":"מאוורר תעשייתי חד כיווני עם מנוע IP 54","size":"16\"","airflow":"3,830 מק\"ש","power":"230 וואט","warranty":"1","price":1210.94,"techPages":[44]},{"sku":"111699316","name":"ונטה פנל \"16 תלת פאזי SF 400 + רשת מגן","category":"מאוורר תעשייתי חד כיווני עם מנוע IP 54","size":"16\"","airflow":"3,980 מק\"ש","power":"230 וואט","warranty":"1","price":1210.94,"techPages":[44]},{"sku":"112099020","name":"ונטה פנל \"20 חד פאזי SF 500 +רשת מגן","category":"מאוורר תעשייתי חד כיווני עם מנוע IP 54","size":"20\"","airflow":"6,420 מק\"ש","power":"420 וואט","warranty":"1","price":1601.81,"techPages":[44]},{"sku":"112099320","name":"ונטה פנל \"20 תלת פאזי SF 500 + רשת מגן","category":"מאוורר תעשייתי חד כיווני עם מנוע IP 54","size":"20\"","airflow":"6,560 מק\"ש","power":"380 וואט","warranty":"1","price":1601.81,"techPages":[44]},{"sku":"112499024","name":"ונטה פנל \"24 חד פאזי SF 600 + רשת מגן","category":"מאוורר תעשייתי חד כיווני עם מנוע IP 54","size":"24\"","airflow":"9000 מק\"ש","power":"400 וואט","warranty":"1","price":1512.0,"techPages":[44]},{"sku":"112499324","name":"ונטה פנל \"24 תלת פאזי SF 600+רשת מגן","category":"מאוורר תעשייתי חד כיווני עם מנוע IP 54","size":"24\"","airflow":"9000 מק\"ש","power":"400 וואט","warranty":"1","price":1512.0,"techPages":[44]},{"sku":"112599925","name":"ונטה פנל \"25 חד פאזי SF 630+רשת מגן","category":"מאוורר תעשייתי חד כיווני עם מנוע IP 54","size":"25\"","airflow":"11,000 מק\"ש","power":"וואט600","warranty":"1","price":2200.0,"techPages":[44]},{"sku":"112599333","name":"ונטה פנל \"25 תלת פאזי SF 630+רשת מגן","category":"מאוורר תעשייתי חד כיווני עם מנוע IP 54","size":"25\"","airflow":"11,000 מק\"ש","power":"600 וואט","warranty":"1","price":2200.0,"techPages":[44]},{"sku":"203687000","name":"מתלה מתכוונן לפנל \"36 \"25 ,\"28","category":"מתלים לדגמי פנל","size":"","airflow":"אוניברסלי","power":"","warranty":"","price":1800.0,"techPages":[40,41]},{"sku":"113099100","name":"מאוורר ארגז \"30 רשת / תריס ES-100","category":"מאוורר במבנה ארגז הנעת רצועה כולל תריס אוטומטי איטלקי","size":"30\"","airflow":"18600 מק\"ש","power":"550 וואט","warranty":"1","price":4154.0,"techPages":[46]},{"sku":"114099120","name":"מאוורר ארגז \"40 רשת /תריס ES-120","category":"מאוורר במבנה ארגז הנעת רצועה כולל תריס אוטומטי איטלקי","size":"40\"","airflow":"28000 מק\"ש","power":"750 וואט","warranty":"1","price":4307.0,"techPages":[46]},{"sku":"114099121","name":"מאוורר ארגז \"40 רשת / רשת ES-120","category":"מאוורר במבנה ארגז הנעת רצועה כולל תריס אוטומטי איטלקי","size":"40\"","airflow":"28000 מק\"ש","power":"750 וואט","warranty":"1","price":4307.0,"techPages":[46]},{"sku":"115099140","name":"מאוורר ארגז \"50 רשת /תריס ES-140","category":"מאוורר במבנה ארגז הנעת רצועה כולל תריס אוטומטי איטלקי","size":"50\"","airflow":"41300 מק\"ש","power":"1100 וואט","warranty":"1","price":4700.0,"techPages":[46]},{"sku":"115099141","name":"מאוורר ארגז \"50 רשת /רשת ES-140","category":"מאוורר במבנה ארגז הנעת רצועה כולל תריס אוטומטי איטלקי","size":"50\"","airflow":"41300 מק\"ש","power":"1100 וואט","warranty":"1","price":4700.0,"techPages":[46]},{"sku":"113099333","name":"מאוורר ארגז \"30 רשת / תריס ZL-100","category":"מאוורר במבנה ארגז הנעת רצועה כולל תריס אוטומטי איטלקי","size":"30\"","airflow":"26000 מק\"ש","power":"550 וואט","warranty":"1","price":3077.0,"techPages":[47]},{"sku":"114099444","name":"מאוורר ארגז \"40 רשת / תריס ZL-120","category":"מאוורר במבנה ארגז הנעת רצועה כולל תריס אוטומטי איטלקי","size":"40\"","airflow":"33000 מק\"ש","power":"750 וואט","warranty":"1","price":3230.0,"techPages":[47]},{"sku":"115099550","name":"מאוורר ארגז \"50 רשת / תריס ZL-138","category":"מאוורר במבנה ארגז הנעת רצועה כולל תריס אוטומטי איטלקי","size":"50\"","airflow":"44000 מק\"ש","power":"1100 וואט","warranty":"1","price":3538.0,"techPages":[47]},{"sku":"11509955","name":"מאוורר ארגז \"50 רשת/רשת MAX EVEL","category":"מאוורר במבנה ארגז הנעה ישירה כולל משנה תדר","size":"\"50","airflow":"43500 מק\"ש","power":"700 וואט","warranty":"1","price":12000.0,"techPages":[47]},{"sku":"241099254","name":"מפוח צנט' כפות קדימה U/AR 254","category":"מפוחים צנטרפוגליים תעשייתים חד פאזי כפות קדימה מוגני התזה","size":"10\"","airflow":"2500 מק\"ש","power":"550 וואט","warranty":"1","price":4077.58,"techPages":[50]},{"sku":"241199304","name":"מפוח צנט' כפות קדימה U/AR 304","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות קדימה מוגני התזה","size":"12\"","airflow":"5000 מק\"ש","power":"1500 וואט","warranty":"1","price":5400.0,"techPages":[50]},{"sku":"241299354","name":"מפוח צנט' כפות קדימה U/AR 354","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות קדימה מוגני התזה","size":"14\"","airflow":"8000 מק\"ש","power":"3000 וואט","warranty":"1","price":6200.0,"techPages":[50]},{"sku":"241899000","name":"מפוח צנט' חד פאזי כפות קדימה OBR 200","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות קדימה מוגני התזה","size":"\"8","airflow":"1800 מק\"ש","power":"260 וואט","warranty":"1","price":1200.0,"techPages":[50]},{"sku":"241299355","name":"מפוח צנט' כפות אחורה U/CB 355","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות אחורה מוגני התזה","size":"14\"","airflow":"4000 מק\"ש","power":"370 וואט","warranty":"1","price":5600.0,"techPages":[50]},{"sku":"241299404","name":"מפוח צנט' כפות אחורה U/CB 404","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות אחורה מוגני התזה","size":"16\"","airflow":"5500 מק\"ש","power":"550 וואט","warranty":"1","price":7000.0,"techPages":[50]},{"sku":"241299506","name":"מפוח צנט' כפות אחורה U/CB 506","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות אחורה מוגני התזה","size":"20\"","airflow":"5500 מק\"ש","power":"370 וואט","warranty":"1","price":7500.0,"techPages":[50]},{"sku":"241299402","name":"מפוח צנט' כפות אחורה U/CB 402","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות אחורה מוגני התזה","size":"16\"","airflow":"10000 מק\"ש","power":"4000 וואט","warranty":"1","price":9000.0,"techPages":[50]},{"sku":"241299454","name":"מפוח צנט' כפות אחורה U/CB 454","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות אחורה מוגני התזה","size":"18\"","airflow":"7000 מק\"ש","power":"750 וואט","warranty":"1","price":7400.0,"techPages":[50]},{"sku":"241299507","name":"מפוח צנט' כפות אחורה U/CB 507","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות אחורה מוגני התזה","size":"20\"","airflow":"7000 מק\"ש","power":"550 וואט","warranty":"1","price":7500.0,"techPages":[50]},{"sku":"241299566","name":"מפוח צנט' כפות אחורה U/CB 566","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות אחורה מוגני התזה","size":"22\"","airflow":"8000 מק\"ש","power":"750 וואט","warranty":"1","price":6500.0,"techPages":[50]},{"sku":"241299637","name":"מפוח צנט' כפות אחורה U/CB 637","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות אחורה מוגני התזה","size":"26\"","airflow":"15000 מק\"ש","power":"2200 וואט","warranty":"1","price":13881.28,"techPages":[50]},{"sku":"241899001","name":"מפוח צנט' חד פאזי כפות אחורה OBR 200","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות אחורה מוגני התזה","size":"8\"","airflow":"1700 מק\"ש","power":"260 וואט","warranty":"1","price":1200.0,"techPages":[50]},{"sku":"210999090","name":"מסך אוויר 90 ס\"מ + שלט 3009y-2-s","category":"מסכי אוויר","size":"90 ס\"מ","airflow":"1220 מק\"ש","power":"195 וואט","warranty":"1","price":1000.0,"techPages":[92]},{"sku":"210099090","name":"מסך אוויר 90 ס\"מ מחוזק + שלט 4009hy","category":"מסכי אוויר","size":"90 ס\"מ","airflow":"1710 מק\"ש","power":"195 וואט","warranty":"1","price":1400.0,"techPages":[92]},{"sku":"210099000","name":"מסך אוויר 90 ס\"מ כולל חימום + שלט","category":"מסכי אוויר","size":"90 ס\"מ","airflow":"1220 מק\"ש","power":"195 וואט","warranty":"1","price":2128.0,"techPages":[92]},{"sku":"210099100","name":"מסך אוויר 100 ס\"מ + שלט 30010y-2-s","category":"מסכי אוויר","size":"100 ס\"מ","airflow":"1450 מק\"ש","power":"250 וואט","warranty":"1","price":1200.0,"techPages":[92]},{"sku":"211199120","name":"מסך אוויר 120 ס\"מ + שלט 30012y-2-s","category":"מסכי אוויר","size":"120 ס\"מ","airflow":"1710 מק\"ש","power":"280 וואט","warranty":"1","price":1300.0,"techPages":[92]},{"sku":"210099120","name":"מסך אוויר 120 ס\"מ מחוזק + שלט 4012hy","category":"מסכי אוויר","size":"120 ס\"מ","airflow":"2100 מק\"ש","power":"280 וואט","warranty":"1","price":1568.0,"techPages":[92]},{"sku":"210099150","name":"מסך אוויר 150 ס\"מ + שלט 30015y-2-s","category":"מסכי אוויר","size":"150 ס\"מ","airflow":"2230 מק\"ש","power":"346 וואט","warranty":"1","price":1500.0,"techPages":[92]},{"sku":"210099155","name":"מסך אוויר 150 ס\"מ מחוזק + שלט 4015hy","category":"מסכי אוויר","size":"150 ס\"מ","airflow":"2480 מק\"ש","power":"346 וואט","warranty":"1","price":1792.0,"techPages":[92]},{"sku":"211899000","name":"מסך אוויר 180 ס\"מ + שלט 30018hy","category":"מסכי אוויר","size":"180 ס\"מ","airflow":"2650 מק\"ש","power":"370 וואט","warranty":"1","price":1700.0,"techPages":[92]},{"sku":"211199120","name":"מסך אוויר 200 ס\"מ + שלט","category":"מסכי אוויר","size":"200 ס\"מ","airflow":"2800 מק\"ש","power":"410 וואט","warranty":"1","price":2000.0,"techPages":[92]},{"sku":"130402400","name":"תריס אל חוזר","category":"תריסים/מכסים","size":"4\"","airflow":"","power":"","warranty":"","price":41.35,"techPages":[36]},{"sku":"130402300","name":"מכסה רשת","category":"תריסים/מכסים","size":"4\"","airflow":"","power":"","warranty":"","price":41.35,"techPages":[36]},{"sku":"240468108","name":"שסתום אל חוזר פלסטיק","category":"תריסים/מכסים","size":"4\"","airflow":"","power":"","warranty":"","price":41.35,"techPages":[37]},{"sku":"130502400","name":"תריס אל חוזר","category":"תריסים/מכסים","size":"5\"","airflow":"","power":"","warranty":"","price":53.42,"techPages":[36]},{"sku":"130502300","name":"מכסה רשת","category":"תריסים/מכסים","size":"5\"","airflow":"","power":"","warranty":"","price":53.42,"techPages":[36]},{"sku":"130602400","name":"תריס אל חוזר","category":"תריסים/מכסים","size":"6\"","airflow":"","power":"","warranty":"","price":68.92,"techPages":[36]},{"sku":"130602300","name":"מכסה רשת","category":"תריסים/מכסים","size":"6\"","airflow":"","power":"","warranty":"","price":68.92,"techPages":[36]},{"sku":"240668110","name":"שסתום אל חוזר פלסטיק","category":"תריסים/מכסים","size":"6\"","airflow":"","power":"","warranty":"","price":68.92,"techPages":[37]},{"sku":"137502202","name":"תריס קבוע","category":"תריסים/מכסים","size":"7.5\"","airflow":"","power":"","warranty":"","price":129.23,"techPages":[36]},{"sku":"137502100","name":"מכסה רשת","category":"תריסים/מכסים","size":"7.5\"","airflow":"","power":"","warranty":"","price":129.23,"techPages":[36]},{"sku":"130802400","name":"תריס אל חוזר","category":"תריסים/מכסים","size":"8\"","airflow":"","power":"","warranty":"","price":129.23,"techPages":[36]},{"sku":"130802300","name":"מכסה רשת","category":"תריסים/מכסים","size":"8\"","airflow":"","power":"","warranty":"","price":129.23,"techPages":[36]},{"sku":"131202200","name":"מכסה תריס","category":"תריסים/מכסים","size":"12\"","airflow":"","power":"","warranty":"","price":160.25,"techPages":[36]},{"sku":"131202100","name":"מכסה רשת","category":"תריסים/מכסים","size":"12\"","airflow":"","power":"","warranty":"","price":160.25,"techPages":[36]},{"sku":"111206000","name":"תריס אל חוזר אלומיניום","category":"תריסי אלומיניום","size":"12\"","airflow":"","power":"","warranty":"","price":403.65,"techPages":[36]},{"sku":"111606000","name":"תריס אל חוזר אלומיניום","category":"תריסי אלומיניום","size":"16\"","airflow":"","power":"","warranty":"","price":442.0,"techPages":[36]},{"sku":"112006000","name":"תריס אל חוזר אלומיניום","category":"תריסי אלומיניום","size":"20\"","airflow":"","power":"","warranty":"","price":686.75,"techPages":[36]},{"sku":"112406000","name":"תריס אל חוזר אלומיניום","category":"תריסי אלומיניום","size":"24\"","airflow":"","power":"","warranty":"","price":805.47,"techPages":[36]},{"sku":"111266010","name":"רשת מגן","category":"רשתות הגנה תעשייתית","size":"12\"","airflow":"","power":"","warranty":"","price":143.02,"techPages":[36]},{"sku":"111666011","name":"רשת מגן","category":"רשתות הגנה תעשייתית","size":"16\"","airflow":"","power":"","warranty":"","price":186.09,"techPages":[36]},{"sku":"112066011","name":"רשת מגן","category":"רשתות הגנה תעשייתית","size":"20\"","airflow":"","power":"","warranty":"","price":211.94,"techPages":[36]},{"sku":"112466011","name":"רשת מגן","category":"רשתות הגנה תעשייתית","size":"24\"","airflow":"","power":"","warranty":"","price":230.89,"techPages":[36]},{"sku":"112566310","name":"רשת מגן","category":"רשתות הגנה תעשייתית","size":"25\"","airflow":"","power":"","warranty":"","price":244.68,"techPages":[36]},{"sku":"112866520","name":"רשת מגן","category":"רשתות הגנה תעשייתית","size":"28\"","airflow":"","power":"","warranty":"","price":442.83,"techPages":[36]},{"sku":"113666100","name":"רשת מגן","category":"רשתות הגנה תעשייתית","size":"36\"","airflow":"","power":"","warranty":"","price":453.17,"techPages":[36]},{"sku":"200476200","name":"צינור גמיש PVC מחוזק בד","category":"צינורות גמישים","size":"4\"","airflow":"","power":"","warranty":"","price":44.8,"techPages":[36]},{"sku":"200576200","name":"צינור גמיש PVC מחוזק בד","category":"צינורות גמישים","size":"5\"","airflow":"","power":"","warranty":"","price":49.97,"techPages":[36]},{"sku":"200676200","name":"צינור גמיש PVC מחוזק בד","category":"צינורות גמישים","size":"6\"","airflow":"","power":"","warranty":"","price":62.03,"techPages":[36]},{"sku":"200876200","name":"צינור גמיש PVC מחוזק בד","category":"צינורות גמישים","size":"8\"","airflow":"","power":"","warranty":"","price":91.32,"techPages":[36]},{"sku":"201076200","name":"צינור גמיש PVC מחוזק בד","category":"צינורות גמישים","size":"10\"","airflow":"","power":"","warranty":"","price":106.83,"techPages":[36]},{"sku":"201276200","name":"צינור גמיש PVC מחוזק בד","category":"צינורות גמישים","size":"12\"","airflow":"","power":"","warranty":"","price":112.0,"techPages":[36]},{"sku":"200476300","name":"צינור אלומיניום \"4 - 10 מטר ללא בידוד","category":"צינורות גמישים","size":"4\"","airflow":"","power":"","warranty":"","price":291.2,"techPages":[36]},{"sku":"200676300","name":"צינור אלומיניום \"6 - 10 מטר ללא בידוד","category":"צינורות גמישים","size":"6\"","airflow":"","power":"","warranty":"","price":384.25,"techPages":[36]},{"sku":"200876300","name":"צינור אלומיניום \"8 - 10 מטר ללא בידוד","category":"צינורות גמישים","size":"8\"","airflow":"","power":"","warranty":"","price":603.08,"techPages":[36]},{"sku":"201276301","name":"צינור אלומיניום \"12 - 10 מטר ללא בידוד","category":"צינורות גמישים","size":"12\"","airflow":"","power":"","warranty":"","price":827.08,"techPages":[36]},{"sku":"207576002","name":"צינור 7.5 פח מגו` 1 מ\"מ","category":"צינורות גמישים","size":"7.5\"","airflow":"","power":"","warranty":"","price":98.22,"techPages":[36]},{"sku":"207566200","name":"צינור \"12 פח מגו` 1 מ\"מ","category":"צינורות גמישים","size":"12\"","airflow":"","power":"","warranty":"","price":191.26,"techPages":[36]},{"sku":"201266800","name":"גריל אויר חוזר300X300 מרובע","category":"אביזרים נלווים","size":"","airflow":"","power":"","warranty":"","price":218.83,"techPages":[37]},{"sku":"200883800","name":"מתאם ישיר מרובע/עגול","category":"אביזרים נלווים","size":"8\"","airflow":"","power":"","warranty":"","price":144.74,"techPages":[36]},{"sku":"200883801","name":"מתאם מרובע רב תכליתי 90x8x125","category":"אביזרים נלווים","size":"","airflow":"","power":"","warranty":"","price":236.06,"techPages":[36]},{"sku":"200883300","name":"מתאם 300X150 מ\"מ","category":"אביזרים נלווים","size":"8\"","airflow":"","power":"","warranty":"","price":182.65,"techPages":[36]},{"sku":"200866300","name":"גריל אויר 150X300 מ\"מ","category":"אביזרים נלווים","size":"","airflow":"","power":"","warranty":"","price":182.65,"techPages":[37]},{"sku":"201286000","name":"משולש רב תכליתי \"6/\"8 / \"10 \"12","category":"אביזרים נלווים","size":"","airflow":"","power":"","warranty":"","price":346.34,"techPages":[36]},{"sku":"200487444","name":"מפצל פח Y 4","category":"אביזרים נלווים","size":"4 \"","airflow":"","power":"","warranty":"","price":120.0,"techPages":[37]},{"sku":"200486004","name":"מפצל פלסטיק Y 4","category":"אביזרים נלווים","size":"4 \"","airflow":"","power":"","warranty":"","price":100.0,"techPages":[37]},{"sku":"200686000","name":"מפצל פלסטיק Y 6","category":"אביזרים נלווים","size":"6 \"","airflow":"","power":"","warranty":"","price":150.0,"techPages":[37]},{"sku":"200886000","name":"מפצל פלסטיק Y 8","category":"אביזרים נלווים","size":"8\"","airflow":"","power":"","warranty":"","price":200.0,"techPages":[37]},{"sku":"200686001","name":"מפצל פלסטיק Y 8-6-6","category":"אביזרים נלווים","size":"\"8/\"6/4\"","airflow":"","power":"","warranty":"","price":224.0,"techPages":[37]},{"sku":"200486000","name":"מפצל פלסטיק 4-6-4 Y","category":"אביזרים נלווים","size":"\"4/\"6/\"4","airflow":"","power":"","warranty":"","price":224.0,"techPages":[37]},{"sku":"200686666","name":"גריל עגול מתכתי 6","category":"אביזרים נלווים","size":"\"6","airflow":"","power":"","warranty":"","price":140.0,"techPages":[37]},{"sku":"200468444","name":"גריל עגול מתכתי 4","category":"אביזרים נלווים","size":"\"4","airflow":"","power":"","warranty":"","price":130.0,"techPages":[37]},{"sku":"200868888","name":"גריל עגול מתכתי 8","category":"אביזרים נלווים","size":"\"8","airflow":"","power":"","warranty":"","price":160.0,"techPages":[37]},{"sku":"200668000","name":"תקרתי מרובע 608 מפתח 305","category":"אביזרים נלווים","size":"60/30 ס\"מ","airflow":"","power":"","warranty":"","price":458.34,"techPages":[36]},{"sku":"200868301","name":"מתאם מרובע 300X300","category":"אביזרים נלווים","size":"8\"","airflow":"","power":"","warranty":"","price":237.78,"techPages":[36]},{"sku":"201068300","name":"מתאם מרובע 300X300","category":"אביזרים נלווים","size":"10\"","airflow":"","power":"","warranty":"","price":237.78,"techPages":[36]},{"sku":"201268400","name":"מתאם מרובע 400X300","category":"אביזרים נלווים","size":"12\"","airflow":"","power":"","warranty":"","price":273.97,"techPages":[36]},{"sku":"200683800","name":"מעביר מדורג 6/8/10/12","category":"אביזרים נלווים","size":"","airflow":"","power":"","warranty":"","price":310.15,"techPages":[36]},{"sku":"137507000","name":"מ. ז. חד כיווני MAS ל- 7.5R, R150, 200R","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":180.45,"techPages":[55]},{"sku":"137507002","name":"מ.ז. דו כיווני MA ל- 7.5R, R150, R200","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":206.48,"techPages":[55]},{"sku":"137507100","name":"מ.ז.אלקטרוני ELS ל- 7.5R , R150, 200R","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":319.27,"techPages":[55]},{"sku":"137507102","name":"מ.ז. אלקטרוני EL ל- 7.5R, R150, 200R","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":319.27,"techPages":[55]},{"sku":"131207000","name":"מפסק זרם MAS לונטה \"12 / \"14 חד כיווני","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":180.45,"techPages":[55]},{"sku":"131207002","name":"מפסק זרם MA לונטה \"12 / \"14","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":206.48,"techPages":[55]},{"sku":"131207100","name":"מפסק זרם ELS לונטה \"12 / \"14","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":319.27,"techPages":[55]},{"sku":"131207102","name":"מפסק זרם EL לונטה\"12 / \"14","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":319.27,"techPages":[55]},{"sku":"130007000","name":"מ\"ז MAS (ללא קבל) לטורבו למפוחים","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":246.4,"techPages":[55]},{"sku":"150007000","name":"מפסק זרם ELS חד כיווני לטורבו ולמפוח קוי","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":309.12,"techPages":[55]},{"sku":"137507102","name":"תוספת מפסק ווסת מהירות ל150R/7.5R/200R","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":122.08,"techPages":[55]},{"sku":"131207102","name":"תוספת מפסק ווסת מהירות ל 12 R","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":112.0,"techPages":[55]},{"sku":"130067900","name":"ערכת טיימר עם טופס הסברה","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":89.6,"techPages":[]},{"sku":"131207220","name":"מפסק זרם ללא קבל ל-\"12 ER ללא קבל","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":309.38,"techPages":[55]},{"sku":"112407000","name":"מפסק זרם MAS לונטה \"24 / \" 20 חד כיווני","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":300.18,"techPages":[55]},{"sku":"200007010","name":"מפסק זרם למפוח IL315 י OW317-9","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":473.07,"techPages":[30,31]},{"sku":"111607002","name":"מפסק זרם MA לונטה \"16 דו כיווני","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":300.18,"techPages":[55]},{"sku":"111607000","name":"מפסק זרם MAS לונטה \"16 חד כיווני","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":300.18,"techPages":[55]},{"sku":"112407002","name":"מפסק זרם MA לונטה דו כיווני \"24/\"20","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":300.18,"techPages":[55]},{"sku":"112407102","name":"מ\"ז \"24 EL עם וסת דו כיווני","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":570.86,"techPages":[55]},{"sku":"111607102","name":"מ\"ז \"16 EL עם וסת דו כיווני","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":570.86,"techPages":[55]},{"sku":"112407100","name":"מ\"ז \"24 ELS עם וסת חד כווני","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":570.86,"techPages":[55]},{"sku":"111607100","name":"מ\"ז \"16 ELS עם וסת חד כיווני","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":570.86,"techPages":[55]},{"sku":"131200000","name":"מ\"ז לדגמי פנל חד כיווני כולל ווסת-BSC 1","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":217.28,"techPages":[55]},{"sku":"112400000","name":"מ\"ז לדגמי פנל חד כיווני כולל ווסת-BSC 2","category":"מפסיקי זרם","size":"","airflow":"","power":"","warranty":"","price":217.28,"techPages":[55]},{"sku":"202507400","name":"מפסק אוברלוד 1A - 1.6A להגנה תרמית למאווריים \"20 \"24","category":"מפסק אוברלוד ואביזרים למאווררים תלת פאזי","size":"","airflow":"","power":"","warranty":"","price":474.88,"techPages":[55]},{"sku":"202507410","name":"מפסק אוברלוד 1.6A - 2.5A להגנה תרמית למאווריים \"28 \"30 \"40","category":"מפסק אוברלוד ואביזרים למאווררים תלת פאזי","size":"","airflow":"","power":"","warranty":"","price":474.88,"techPages":[55]},{"sku":"203007400","name":"מפסק אוברלוד 2.5A - 4A להגנה תרמית למאווריים ER25\" \"36 \"50","category":"מפסק אוברלוד ואביזרים למאווררים תלת פאזי","size":"","airflow":"","power":"","warranty":"","price":474.88,"techPages":[55]},{"sku":"120299100","name":"מאוורר סופה 24 אינץ תליה + שלט","category":"מוצרי קיץ וחורף","size":"24\"","airflow":"8000 מק\"ש","power":"220 וואט","warranty":"1","price":1000.0,"techPages":[78]},{"sku":"120299220","name":"מאוורר סופה 24 אינץ רגל + שלט","category":"מוצרי קיץ וחורף","size":"24\"","airflow":"8000 מק\"ש","power":"220 וואט","warranty":"1","price":1068.48,"techPages":[78]},{"sku":"112499100","name":"ונטה תליה קיר כולל מפסק MAS חד פאזי 3 מהירויות IP55","category":"מוצרי קיץ וחורף","size":"24\"","airflow":"8000 מק\"ש","power":"350 וואט","warranty":"1","price":2700.0,"techPages":[]},{"sku":"112499103","name":"ונטה כולל רשת מגן קדמי תלת פאזי 3 מהירויות IP55","category":"מוצרי קיץ וחורף","size":"24\"","airflow":"8000 מק\"ש","power":"300 וואט","warranty":"1","price":2800.0,"techPages":[36]},{"sku":"112599180","name":"מאוורר גן 26 אינץ לתליה","category":"מאווררי גן","size":"26\"","airflow":"11000 מק\"ש","power":"195 וואט","warranty":"1","price":425.6,"techPages":[77]},{"sku":"112599280","name":"מאוורר גן 26 אינץ על רגל","category":"מאווררי גן","size":"26\"","airflow":"11000 מק\"ש","power":"195 וואט","warranty":"1","price":474.71,"techPages":[77]},{"sku":"113099180","name":"מאוורר גן 30 אינץ לתליה","category":"מאווררי גן","size":"30\"","airflow":"18000 מק\"ש","power":"220 וואט","warranty":"1","price":474.71,"techPages":[77]},{"sku":"113099280","name":"מאוורר גן 30 אינץ על רגל","category":"מאווררי גן","size":"30\"","airflow":"18000 מק\"ש","power":"220 וואט","warranty":"1","price":507.45,"techPages":[77]},{"sku":"1118990118","name":"מאוורר \"18 קיר +רגל דגם סופה","category":"מאווררי גן","size":"\"18","airflow":"8000 מק\"ש","power":"120 וואט","warranty":"1","price":308.0,"techPages":[76]},{"sku":"110099012","name":"מאוורר נטען 12 אינץ","category":"מאווררי גן","size":"12\"","airflow":"2500 מק\"ש","power":"וואט 18","warranty":"1","price":450.0,"techPages":[79]},{"sku":"354599001","name":"מאוורר תקרה ביתי דגם \" הרמוניה\" לבן \"45 + כולל תאורה 3 להבים","category":"מאווררי תקרה ביתיים","size":"45\"","airflow":"9,000 מק\"ש","power":"70 וואט","warranty":"5","price":950.0,"techPages":[64]},{"sku":"354599000","name":"מאוורר תקרה ביתי דגם \" הרמוניה\" טיק\"45 + כולל תאורה 3 להבים","category":"מאווררי תקרה ביתיים","size":"45\"","airflow":"9,000 מק\"ש","power":"70 וואט","warranty":"5","price":950.0,"techPages":[64]},{"sku":"354899110","name":"אייר פרש דגם לבן 48\" בייתי תקרה מאוורר","category":"מאווררי תקרה ביתיים","size":"48\"","airflow":"9,000 מק\"ש","power":"57W","warranty":"5","price":920.0,"techPages":[69]},{"sku":"354899210","name":"אייר פרש דגם שחור 48\" בייתי תקרה מאוורר","category":"מאווררי תקרה ביתיים","size":"48\"","airflow":"9,000 מק\"ש","power":"57W","warranty":"5","price":920.0,"techPages":[69]},{"sku":"354899100","name":"יוניק - לבן 48\" בייתי תקרה מאוורר","category":"מאווררי תקרה ביתיים","size":"48\"","airflow":"9,000 מק\"ש","power":"57W","warranty":"5","price":920.0,"techPages":[68]},{"sku":"354899048","name":"יוניק - שחור 48\" בייתי תקרה מאוורר","category":"מאווררי תקרה ביתיים","size":"48\"","airflow":"9,000 מק\"ש","power":"57W","warranty":"5","price":920.0,"techPages":[68]},{"sku":"355299550","name":"הוואי דגם IP-65 מים מוגן לבן גוף ,טיק כנף 52\" תקרה מאוורר","category":"מאווררי תקרה ביתיים","size":"\"52","airflow":"מק\"ש9,000","power":"57W","warranty":"5","price":1200.0,"techPages":[70]},{"sku":"350099552","name":"הוואי דגם IP-65 מים מוגן לבן 52\" תקרה מאוורר","category":"מאווררי תקרה ביתיים","size":"\"52","airflow":"מק\"ש9,000","power":"57W","warranty":"5","price":1200.0,"techPages":[70]},{"sku":"350399100","name":"מאוורר תקרה ביתי דגם הרמוניה שחור \"60 + כולל תאורה 3 להבים","category":"מאווררי תקרה ביתיים","size":"60\"","airflow":"11,500 מק\"ש","power":"70 וואט","warranty":"5","price":1210.0,"techPages":[64]},{"sku":"350399200","name":"מאוורר תקרה ביתי דגם הרמוניה לבן \"60 + כולל תאורה 3 להבים","category":"מאווררי תקרה ביתיים","size":"60\"","airflow":"11,500 מק\"ש","power":"70 וואט","warranty":"5","price":1210.0,"techPages":[64,65]},{"sku":"350399300","name":"מאוורר תקרה ביתי דגם הרמוניה טיק \"60 + כולל תאורה 3 להבים","category":"מאווררי תקרה ביתיים","size":"60\"","airflow":"11,500 מק\"ש","power":"70 וואט","warranty":"5","price":1210.0,"techPages":[64]},{"sku":"356099000","name":"מאוורר תקרה הרמוניה FS-64\" 2 צבע לבן מט כולל תאורה ו 3 להבים","category":"מאווררי תקרה ביתיים","size":"64\"","airflow":"11,500 מק\"ש","power":"53 וואט","warranty":"5","price":920.0,"techPages":[64]},{"sku":"356099001","name":"מאוורר תקרה הרמוניה FS-64\" 2 צבע טיק כולל תאורה ו 3 להבים","category":"מאווררי תקרה ביתיים","size":"64\"","airflow":"11,500 מק\"ש","power":"53 וואט","warranty":"5","price":920.0,"techPages":[64]},{"sku":"356099002","name":"מאוורר תקרה הרמוניה FS-64\" 2 צבע שחור כולל תאורה ו 3 להבים","category":"מאווררי תקרה ביתיים","size":"64\"","airflow":"11,500 מק\"ש","power":"53 וואט","warranty":"5","price":920.0,"techPages":[64]},{"sku":"351099100","name":"מאוורר תקרה דגם \" ספיידר \" לבן 86+ כולל תאורה ו 6 להבים","category":"מאווררי תקרה ביתיים","size":"86\"","airflow":"16,000 מק\"ש","power":"60 וואט","warranty":"5","price":2600.0,"techPages":[73]},{"sku":"351099101","name":"מאוורר תקרה דגם \" ספיידר \" שחור 86+ כולל תאורה ו 6 להבים","category":"מאווררי תקרה ביתיים","size":"86\"","airflow":"16,000 מק\"ש","power":"60 וואט","warranty":"5","price":2600.0,"techPages":[73]},{"sku":"351099102","name":"מאוורר תקרה דגם \" ספיידר \" טיק 86+ כולל תאורה ו 6 להבים","category":"מאווררי תקרה ביתיים","size":"86\"","airflow":"16,000 מק\"ש","power":"60 וואט","warranty":"5","price":2600.0,"techPages":[73]},{"sku":"350078045","name":"מוט שחור למאוורר תקרה בייתי 45 ס\"מ לדגמי הרמוניה 1/3 ואוורסט","category":"מוטות הארכה למאווררי תקרה","size":"45 ס\"מ","airflow":"","power":"","warranty":"","price":150.0,"techPages":[64,65]},{"sku":"350078046","name":"מוט לבן למאוורר תקרה בייתי 45 ס\"מ לדגמי הרמוניה 1/3 ואוורסט","category":"מוטות הארכה למאווררי תקרה","size":"45 ס\"מ","airflow":"","power":"","warranty":"","price":150.0,"techPages":[64,65]},{"sku":"350078060","name":"מוט שחור למאוורר תקרה בייתי 60 ס\"מ לדגמי הרמוניה 1/3 ואוורסט","category":"מוטות הארכה למאווררי תקרה","size":"60 ס\"מ","airflow":"","power":"","warranty":"","price":180.0,"techPages":[64,65]},{"sku":"350078061","name":"מוט לבן למאוורר תקרה בייתי 60 ס\"מ לדגמי הרמוניה 1/3 ואוורסט","category":"מוטות הארכה למאווררי תקרה","size":"60 ס\"מ","airflow":"","power":"","warranty":"","price":180.0,"techPages":[64,65]},{"sku":"350078091","name":"מוט לבן למאוורר תקרה בייתי 90 ס\"מ לדגמי הרמוניה 1/3 ואוורסט","category":"מוטות הארכה למאווררי תקרה","size":"90 ס\"מ","airflow":"","power":"","warranty":"","price":180.0,"techPages":[64,65]},{"sku":"350078120","name":"מוט שחור למאוורר תקרה בייתי 1.20 מ' לדגמי הרמוניה 1/3 ואוורסט","category":"מוטות הארכה למאווררי תקרה","size":"120 ס\"מ","airflow":"","power":"","warranty":"","price":180.0,"techPages":[64,65]},{"sku":"351278000","name":"מוט 120 ס\"מ לבן לדגם \"52 \"64","category":"מוטות הארכה למאווררי תקרה","size":"120 ס\"מ","airflow":"","power":"","warranty":"","price":220.0,"techPages":[]},{"sku":"351278001","name":"מוט 120 ס\"מ שחור לדגם \"52 \"64","category":"מוטות הארכה למאווררי תקרה","size":"120 ס\"מ","airflow":"","power":"","warranty":"","price":220.0,"techPages":[]},{"sku":"354578000","name":"מוט 45 ס\"מ שחור לדגם \"64 \"52","category":"מוטות הארכה למאווררי תקרה","size":"45 ס\"מ","airflow":"","power":"","warranty":"","price":150.0,"techPages":[]},{"sku":"354578001","name":"מוט 45 ס\"מ לבן לדגם \"64 \"52","category":"מוטות הארכה למאווררי תקרה","size":"45 ס\"מ","airflow":"","power":"","warranty":"","price":150.0,"techPages":[]},{"sku":"356078000","name":"מוט 60 ס\"מ לבן לדגם \"64 \"52","category":"מוטות הארכה למאווררי תקרה","size":"60 ס\"מ","airflow":"","power":"","warranty":"","price":180.0,"techPages":[]},{"sku":"356078001","name":"מוט 60 ס\"מ שחור לדגם \"64 \"53","category":"מוטות הארכה למאווררי תקרה","size":"60 ס\"מ","airflow":"","power":"","warranty":"","price":180.0,"techPages":[]},{"sku":"260099700","name":"מצנן אוויר באידוי 8000 מק\"ש דגם \"בלקוני\"","category":"מצננים","size":"20\"","airflow":"8000 מק\"ש","power":"250w","warranty":"1","price":1400.0,"techPages":[84,85]},{"sku":"260099110","name":"מצנן אוויר באידוי דגם \"ציקלון\" 12000 מק\"ש","category":"מצננים","size":"25\"","airflow":"12000 מק\"ש","power":"480 W","warranty":"1","price":1900.0,"techPages":[84]},{"sku":"260099018","name":"מצנן אוויר באידוי דגם \"טייפון\" 18000 מק\"ש","category":"מצננים","size":"25\"","airflow":"18000 מק\"ש","power":"700 W","warranty":"1","price":3600.0,"techPages":[84]},{"sku":"260099023","name":"מצנן אוויר באידוי דגם \"סהרה\" 23000 מק\"ש","category":"מצננים","size":"30\"","airflow":"23000 מק\"ש","power":"750W","warranty":"1","price":4690.56,"techPages":[84]},{"sku":"227099020","name":"מזגן נייד דגם V -20","category":"מזגנים ניידים","size":"","airflow":"230 מק\"ש","power":"700W","warranty":"1","price":2769.0,"techPages":[88,89]},{"sku":"229599027","name":"מזגן נייד דגם V- 27","category":"מזגנים ניידים","size":"","airflow":"400 מק\"ש","power":"950W","warranty":"1","price":3590.0,"techPages":[88,89]},{"sku":"221599035","name":"מזגן נייד דגם V- 35","category":"מזגנים ניידים","size":"","airflow":"600 מק\"ש","power":"1500W","warranty":"1","price":4700.0,"techPages":[88,89]},{"sku":"220599005","name":"5KW חום מפזר","category":"מפזרי חום לתעשייה","size":"","airflow":"עד 40 מ\"ר","power":"5000W","warranty":"1","price":1700.0,"techPages":[100]},{"sku":"221599000","name":"15KW חום מפזר","category":"מפזרי חום לתעשייה","size":"","airflow":"עד 120 מ\"ר","power":"15000W","warranty":"1","price":2500.0,"techPages":[100]},{"sku":"220999000","name":"חדש - 9KW חום מפזר","category":"מפזרי חום לתעשייה","size":"","airflow":"עד 80 מ\"ר","power":"9000W","warranty":"1","price":1923.0,"techPages":[100]},{"sku":"223099300","name":"30KW חום מפזר","category":"מפזרי חום לתעשייה","size":"","airflow":"עד 240 מ\"ר","power":"30000W","warranty":"1","price":4500.0,"techPages":[100]},{"sku":"150499044","name":"מפוח קוי \"4 פלסטיק דגם HF-100P","category":"מפוחים קוויים סדרת HF","size":"4\"","airflow":"200 מק\"ש","power":"","warranty":"2","price":420.0,"techPages":[20,21,22,23]},{"sku":"150699906","name":"מפוח קוי \"6 פלסטיק דגם HF-150P","category":"מפוחים קוויים סדרת HF","size":"6\"","airflow":"530 מק\"ש","power":"","warranty":"2","price":584.0,"techPages":[20,21,22,23]},{"sku":"150899908","name":"מפוח קוי \"8 פלסטיק דגם HF-200P","category":"מפוחים קוויים סדרת HF","size":"8\"","airflow":"840 מק\"ש","power":"","warranty":"2","price":769.0,"techPages":[20,21,22,23]},{"sku":"151299112","name":"מפוח פלסטיק \"HF-315P 12","category":"מפוחים קוויים סדרת HF","size":"12\"","airflow":"1700 מק\"ש","power":"","warranty":"2","price":1000.0,"techPages":[20,21,22,23]},{"sku":"150499911","name":"מפוח קוי \"4 פלסטיק דגם 100PZZT + טיימר","category":"מפוחים קוויים סדרת HF","size":"4\"","airflow":"200 מק\"ש","power":"","warranty":"2","price":659.68,"techPages":[20,21,22,23]},{"sku":"150699911","name":"מפוח קוי \"6 פלסטיק דגם 150PZPT + טיימר","category":"מפוחים קוויים סדרת HF","size":"6\"","airflow":"500 מק\"ש","power":"","warranty":"2","price":864.3,"techPages":[20,21,22,23]},{"sku":"150499144","name":"מפוח קוי \"4 מושתק דגם HDD-100P","category":"מפוחים קוויים סדרת HDD מושתק","size":"4\"","airflow":"250 מק\"ש","power":"","warranty":"2","price":815.0,"techPages":[]},{"sku":"150699166","name":"מפוח קוי \"6 מושתק דגם HDD-150P","category":"מפוחים קוויים סדרת HDD מושתק","size":"6\"","airflow":"530 מק\"ש","power":"","warranty":"2","price":923.0,"techPages":[]},{"sku":"150899188","name":"מפוח קוי \"8 מושתק דגם HDD-200P","category":"מפוחים קוויים סדרת HDD מושתק","size":"8\"","airflow":"950 מק\"ש","power":"","warranty":"2","price":1077.0,"techPages":[]},{"sku":"600099200","name":"מטהר אויר VP AIR 200","category":"מטהרי אוויר ביתיים","size":"","airflow":"380 מק\"ש","power":"","warranty":"1","price":1300.0,"techPages":[112]},{"sku":"600099550","name":"מטהר אויר VP AIR 550","category":"מטהרי אוויר ביתיים","size":"","airflow":"550 מק\"ש","power":"","warranty":"1","price":1700.0,"techPages":[112]},{"sku":"241899260","name":"מפוח צנט' חד פאזי כפות קדימה OBR-260","category":"מפוחים צנטרפוגליים תעשייתים תלת פאזי כפות קדימה מוגני התזה","size":"10\"","airflow":"2720 מק\"ש","power":"1500 וואט","warranty":"1","price":2800.0,"techPages":[50]},{"sku":"550687600","name":"ברך אש \"6","category":"ברכי אש","size":"6\"","airflow":"","power":"","warranty":"","price":257.0,"techPages":[]},{"sku":"552587600","name":"ברך אש \"4 250*600 מ\"מ","category":"ברכי אש","size":"4\"","airflow":"","power":"","warranty":"","price":190.0,"techPages":[]},{"sku":"550678066","name":"צינור חצי קשיח \"6 , 5 מטר","category":"צינורות גמישים","size":"6\"","airflow":"","power":"","warranty":"","price":450.0,"techPages":[36]},{"sku":"130487000","name":"גריל פלסטיק עגול \"4","category":"אביזרים נלווים","size":"4\"","airflow":"","power":"","warranty":"","price":150.0,"techPages":[36]},{"sku":"130687000","name":"גריל פלסטיק עגול \"6","category":"אביזרים נלווים","size":"6\"","airflow":"","power":"","warranty":"","price":160.0,"techPages":[36]},{"sku":"130887000","name":"גריל פלסטיק עגול \"8","category":"אביזרים נלווים","size":"8\"","airflow":"","power":"","warranty":"","price":180.0,"techPages":[36]},{"sku":"150000001","name":"מפסקים למפוחים קווים דגמי HF/HDD","category":"אביזרים נלווים","size":"","airflow":"","power":"","warranty":"","price":250.0,"techPages":[36]},{"sku":"354599002","name":"מאוורר תקרה ביתי דגם \" הרמוניה\" שחור\" 45 + כולל תאורה 3 להבים","category":"מאווררי תקרה ביתיים","size":"45\"","airflow":"9,000 מק\"ש","power":"70 וואט","warranty":"5","price":950.0,"techPages":[64]},{"sku":"354599500","name":"מאוורר תקרה ביתי דגם \" הרמוניה 3 \" לבן \"45 + כולל תאורה 3 להבים","category":"מאווררי תקרה ביתיים","size":"45\"","airflow":"9,000 מק\"ש","power":"70 וואט","warranty":"5","price":950.0,"techPages":[64]},{"sku":"354599502","name":"מאוורר תקרה ביתי דגם \" הרמוניה 3 \" טיק \"45 + כולל תאורה 3 להבים","category":"מאווררי תקרה ביתיים","size":"45\"","airflow":"9,000 מק\"ש","power":"70 וואט","warranty":"5","price":950.0,"techPages":[64]},{"sku":"354599501","name":"מאוורר תקרה ביתי דגם \" הרמוניה 3 \" שחור \"45 + כולל תאורה 3 להבים","category":"מאווררי תקרה ביתיים","size":"45\"","airflow":"9,000 מק\"ש","power":"70 וואט","warranty":"5","price":950.0,"techPages":[64]},{"sku":"354899001","name":"מאוורר תקרה הרמוניה FS-52\" 2 צבע טיק","category":"מאווררי תקרה ביתיים","size":"52\"","airflow":"9,000 מק\"ש","power":"53 וואט","warranty":"5","price":920.0,"techPages":[68,69]},{"sku":"354899002","name":"מאוורר תקרה הרמוניה FS-52\" 2 צבע לבן מט","category":"מאווררי תקרה ביתיים","size":"52\"","airflow":"9,000 מק\"ש","power":"53 וואט","warranty":"5","price":920.0,"techPages":[68,69]},{"sku":"359900052","name":"מאוורר תקרה הרמוניה \"FS-52 צבע שחור","category":"מאווררי תקרה ביתיים","size":"52\"","airflow":"9,000 מק\"ש","power":"57W","warranty":"5","price":920.0,"techPages":[68,69]},{"sku":"355299000","name":"מאוורר תקרה ביתי דגם \" הרמוניה 4 \" לבן \" 52 + כולל תאורה 4 להבים","category":"מאווררי תקרה ביתיים","size":"52\"","airflow":"9,000 מק\"ש","power":"70 וואט","warranty":"5","price":1200.0,"techPages":[68,69]},{"sku":"355299001","name":"מאוורר תקרה ביתי דגם \" הרמוניה 4 \" טיק \" 52 + כולל תאורה 4 להבים","category":"מאווררי תקרה ביתיים","size":"52\"","airflow":"9,000 מק\"ש","power":"70 וואט","warranty":"5","price":1200.0,"techPages":[68,69]},{"sku":"359078000","name":"מוט 90 ס\"מ לבן לדגם \"64 \"52","category":"מוטות הארכה למאווררי תקרה","size":"90 ס\"מ","airflow":"","power":"","warranty":"","price":180.0,"techPages":[64,65]},{"sku":"359078001","name":"מוט 90 ס\"מ שחור לדגם \"64 \"52","category":"מוטות הארכה למאווררי תקרה","size":"90 ס\"מ","airflow":"","power":"","warranty":"","price":180.0,"techPages":[64,65]},{"sku":"220099022","name":"מחמם קוורץ דגם טאואר - פרו PSG-20R + שלט","category":"מחממי קוורץ","size":"","airflow":"עד 25 מ\"ר","power":"2000W","warranty":"1","price":750.0,"techPages":[87]},{"sku":"222099505","name":"מחמם קוורץ 2000W כסוף ללא שלט","category":"מחממי קוורץ","size":"","airflow":"עד 25 מ\"ר","power":"2000W","warranty":"1","price":450.0,"techPages":[83]},{"sku":"220099025","name":"מחמם קוורץ 2000W שחור ללא שלט","category":"מחממי קוורץ","size":"","airflow":"עד 25 מ\"ר","power":"2000W","warranty":"1","price":450.0,"techPages":[83]},{"sku":"220099400","name":"מחמם קוורץ כסף 2000 עם שלט- חדש פלטיניום","category":"מחממי קוורץ","size":"","airflow":"עד 25 מ\"ר","power":"2000W","warranty":"1","price":450.0,"techPages":[83]},{"sku":"220099450","name":"מחמם קוורץ שחור 2000W עם שלט- חדש פלטיניום","category":"מחממי קוורץ","size":"","airflow":"עד 25 מ\"ר","power":"2000W","warranty":"1","price":450.0,"techPages":[83]},{"sku":"222099500","name":"מחמם 2000W עומד מוגן התזה ללא שלט (טאוור)","category":"מחממי קוורץ","size":"","airflow":"עד 25 מ\"ר","power":"2000W","warranty":"1","price":550.0,"techPages":[]}];
+const CATALOG_IMAGES = {"1":"page-001.jpg","2":"page-002.jpg","3":"page-003.jpg","4":"page-004.jpg","5":"page-005.jpg","6":"page-006.jpg","7":"page-007.jpg","8":"page-008.jpg","9":"page-009.jpg","10":"page-010.jpg","11":"page-011.jpg","12":"page-012.jpg","13":"page-013.jpg","14":"page-014.jpg","15":"page-015.jpg","16":"page-016.jpg","17":"page-017.jpg","18":"page-018.jpg","19":"page-019.jpg","20":"page-020.jpg","21":"page-021.jpg","22":"page-022.jpg","23":"page-023.jpg","24":"page-024.jpg","25":"page-025.jpg","26":"page-026.jpg","27":"page-027.jpg","28":"page-028.jpg","29":"page-029.jpg","30":"page-030.jpg","31":"page-031.jpg","32":"page-032.jpg","33":"page-033.jpg","34":"page-034.jpg","35":"page-035.jpg","36":"page-036.jpg","37":"page-037.jpg","38":"page-038.jpg","39":"page-039.jpg","40":"page-040.jpg","41":"page-041.jpg","42":"page-042.jpg","43":"page-043.jpg","44":"page-044.jpg","45":"page-045.jpg","46":"page-046.jpg","47":"page-047.jpg","48":"page-048.jpg","49":"page-049.jpg","50":"page-050.jpg","51":"page-051.jpg","52":"page-052.jpg","53":"page-053.jpg","54":"page-054.jpg","55":"page-055.jpg","56":"page-056.jpg","57":"page-057.jpg","58":"page-058.jpg","59":"page-059.jpg","60":"page-060.jpg","61":"page-061.jpg","62":"page-062.jpg","63":"page-063.jpg","64":"page-064.jpg","65":"page-065.jpg","66":"page-066.jpg","67":"page-067.jpg","68":"page-068.jpg","69":"page-069.jpg","70":"page-070.jpg","71":"page-071.jpg","72":"page-072.jpg","73":"page-073.jpg","74":"page-074.jpg","75":"page-075.jpg","76":"page-076.jpg","77":"page-077.jpg","78":"page-078.jpg","79":"page-079.jpg","80":"page-080.jpg","81":"page-081.jpg","82":"page-082.jpg","83":"page-083.jpg","84":"page-084.jpg","85":"page-085.jpg","86":"page-086.jpg","87":"page-087.jpg","88":"page-088.jpg","89":"page-089.jpg","90":"page-090.jpg","91":"page-091.jpg","92":"page-092.jpg","93":"page-093.jpg","94":"page-094.jpg","95":"page-095.jpg","96":"page-096.jpg","97":"page-097.jpg","98":"page-098.jpg","99":"page-099.jpg","100":"page-100.jpg","101":"page-101.jpg","102":"page-102.jpg","103":"page-103.jpg","104":"page-104.jpg","105":"page-105.jpg","106":"page-106.jpg","107":"page-107.jpg","108":"page-108.jpg","109":"page-109.jpg","110":"page-110.jpg","111":"page-111.jpg","112":"page-112.jpg","113":"page-113.jpg","114":"page-114.jpg"};
+let DISCOUNT=0.35; let VAT=0.18;
+const SETTINGS_STORE_KEY='ventaSettings_v1';
+const CATALOG_STORE_KEY='ventaCatalogImages_v1';
+let APP_SETTINGS={pricebookName:'מחיר צרכן',vat:18,quoteValidityDays:30,terms:'תשלום לפני אספקה',bankDetails:'בנק לאומי 10, סניף 707, מס׳ חשבון 11080019',discounts:[35,25,10]};
+let cart=[], selectedQuoteNumber='', PRODUCT_FILTER='all', PRICE_MODE='discount';
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function norm(s){return String(s||'').toLowerCase().replace(/\s+/g,' ').trim()}
+function money(v){v=Math.round(Number(v||0)*100)/100; return Math.abs(v-Math.round(v))<0.005?'₪'+Math.round(v).toLocaleString('he-IL'):'₪'+v.toLocaleString('he-IL',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function todayISO(){const d=new Date(); return d.toISOString().slice(0,10)}
+function activePromo(p){
+  const promo=p&&p.promo?p.promo:null;
+  if(!promo||!promo.type||promo.value===''||promo.value==null) return null;
+  const now=todayISO();
+  if(promo.start && now < promo.start) return null;
+  if(promo.end && now > promo.end) return null;
+  const value=Number(promo.value);
+  if(!Number.isFinite(value)||value<=0) return null;
+  const base=Number(p.price||0);
+  let final=base;
+  if(promo.type==='percent') final=base*(1-value/100);
+  else if(promo.type==='fixed') final=value;
+  else return null;
+  final=Math.max(0,Math.round(final*100)/100);
+  if(final>=base) return null;
+  return {type:promo.type,value,final,label:promo.label||'מבצע',start:promo.start||'',end:promo.end||'',qty:Number(promo.qty||0)||0};
+}
+function promoText(p){const pr=activePromo(p); if(!pr)return ''; const kind=pr.type==='percent'?pr.value+'% הנחה':'מחיר מבצע '+money(pr.final); const dates=(pr.start||pr.end)?' | '+(pr.start||'')+' - '+(pr.end||''):''; const qty=pr.qty?' | כמות מבצע: '+pr.qty:''; return (pr.label||'מבצע')+' - '+kind+qty+dates;}
+function netPrice(p){
+  const pr=activePromo(p);
+  if(PRICE_MODE==='promo' && pr) return pr.final;
+  return Math.round(Number(p.price||0)*(1-DISCOUNT)*100)/100;
+}
+function discountPct(){return Math.round(DISCOUNT*100)}
+function priceModeLabel(){return PRICE_MODE==='promo'?'מבצע':discountPct()+'%'}
+function applyPromoQuantities(){
+  if(PRICE_MODE!=='promo') return;
+  cart.forEach(it=>{
+    const pr=activePromo(it);
+    if(pr && pr.qty && Number(pr.qty)>0) it.qty=Number(pr.qty);
+  });
+}
+function setDiscount(mode){
+  const raw=String(mode);
+  if(raw==='promo'){
+    PRICE_MODE='promo';
+  } else {
+    const pct=Number(raw);
+    PRICE_MODE='discount';
+    DISCOUNT = ([35,25,10].includes(pct)?pct:35) / 100;
+  }
+  applyPromoQuantities();
+  document.querySelectorAll('.discBtn').forEach(b=>{
+    const active = b.dataset.disc === (PRICE_MODE==='promo'?'promo':String(discountPct()));
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  const dl=$('discLabel');
+  if(dl) dl.textContent=priceModeLabel();
+  renderProducts();
+  renderCart();
+  if($('previewView') && $('previewView').style.display==='block'){
+    $('pages').innerHTML=buildQuotePages();
+    $('previewTitle').textContent='הצעת מחיר '+selectedQuoteNumber;
+  }
+}
+function dateStr(off=0){const d=new Date(); d.setDate(d.getDate()+off); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getFullYear()).slice(-2)}
+function quoteDateKey(){const d=new Date(); return String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+String(d.getFullYear()).slice(-2)}
+function quoteNum(){return quoteDateKey()+'-001'}
+function nextQuoteNum(){
+  const key='ventaQuoteSeq_'+quoteDateKey();
+  const n=(Number(localStorage.getItem(key)||0)||0)+1;
+  localStorage.setItem(key,String(n));
+  return quoteDateKey()+'-'+String(n).padStart(3,'0');
+}
+function ensureQuoteNumber(){if(!selectedQuoteNumber) selectedQuoteNumber=nextQuoteNum(); return selectedQuoteNumber;}
+function renderProducts(){const q=norm($('searchInput').value); const words=q.split(' ').filter(Boolean); const list=PRODUCTS.filter(p=>{const hasPromo=!!activePromo(p); if(PRODUCT_FILTER==='promo'&&!hasPromo) return false; if(PRODUCT_FILTER==='noPromo'&&hasPromo) return false; return !words.length||words.every(w=>norm(p.name).includes(w)||norm(p.sku).includes(w)||norm(p.category).includes(w)||norm(promoText(p)).includes(w));}).slice(0,150); $('productList').innerHTML=list.length?list.map(p=>{const pr=activePromo(p); return `<div class="product ${pr?'onSale':''}" data-sku="${esc(p.sku)}"><div><div class="pname">${esc(p.name)}</div>${pr?`<div class="saleBadge">${esc(pr.label||'מבצע')}</div>`:''}<div class="pmeta">מק״ט: ${esc(p.sku)} | ${esc(p.category||'')} | דף טכני: ${(p.techPages||[]).join(', ')||'לבדיקה'}</div>${pr?`<div class="saleNote">${esc(promoText(p))}</div>`:''}</div><div class="pprice"><div class="regularLabel">מחיר רגיל</div><div class="consumer">${money(p.price)}</div>${pr?`<div class="saleOption"><small>אופציית מבצע</small><span class="salePrice">${money(pr.final)}</span>${pr.qty?`<small>כמות מבצע: ${pr.qty}</small>`:''}</div>`:''}</div></div>`}).join(''):'<div class="empty">לא נמצאו מוצרים</div>'}
+function addProduct(sku){const p=PRODUCTS.find(x=>String(x.sku)===String(sku)); if(!p)return; const pr=activePromo(p); const promoQty=(PRICE_MODE==='promo'&&pr&&pr.qty)?Number(pr.qty):1; const ex=cart.find(x=>x.sku===p.sku); if(ex){ex.qty += (PRICE_MODE==='promo'&&pr&&pr.qty)?0:1; if(PRICE_MODE==='promo'&&pr&&pr.qty) ex.qty=promoQty;} else cart.push({...p,qty:promoQty}); renderCart()}
+function renderCart(){if(!cart.length){$('cart').innerHTML='<div class="empty">לא נבחרו מוצרים</div>'; $('cartSummary').innerHTML='';} else {$('cart').innerHTML=cart.map(it=>{const pr=activePromo(it); const usingPromo=PRICE_MODE==='promo'&&pr; const unit=netPrice(it); const method=usingPromo?'מבצע':discountPct()+'%'; return `<div class="cartLine"><div><div class="cartName">${esc(it.name)}</div><div class="cartMeta">${esc(it.sku)} | מחיר רגיל: ${money(it.price)} ליח׳${pr?`<span class="cartPromoPrice">אופציית מבצע זמינה: ${money(pr.final)} ליח׳ | ${esc(pr.label||'מבצע')}${pr.qty?' | כמות מבצע: '+pr.qty:''}</span>`:''}<span class="cartMeta" style="display:block">מחיר נבחר: ${esc(method)}</span></div></div><div class="qty"><button data-dec="${esc(it.sku)}">−</button><span>${it.qty}</span><button data-inc="${esc(it.sku)}">+</button></div><b>${money(unit*it.qty)}</b><button class="del" data-del="${esc(it.sku)}">×</button></div>`}).join(''); const sub=cart.reduce((s,i)=>s+netPrice(i)*i.qty,0),vat=Math.round(sub*VAT*100)/100,total=sub+vat; $('cartSummary').innerHTML=`<div class="sumrow"><span>לפני מע״מ</span><b>${money(sub)}</b></div><div class="sumrow"><span>מע״מ 18%</span><b>${money(vat)}</b></div><div class="sumrow total"><span>סה״כ</span><b>${money(total)}</b></div>`;} checkReady()}
+function checkReady(){const disabled=!(cart.length && $('customerName').value.trim() && $('salesArea').value); $('createQuote').disabled=disabled; const mb=$('mainPdfBtn'); if(mb) mb.disabled=disabled;}
+function uniqueTechPages(){const s=new Set(); cart.forEach(p=>(p.techPages||[]).forEach(pg=>{pg=Number(pg); if(pg>=1)s.add(pg)})); return [...s].sort((a,b)=>a-b)}
+function buildQuotePages(){ensureQuoteNumber(); const cust=esc($('customerName').value.trim()); const phone=esc($('customerPhone').value.trim()); const proj=esc($('projectName').value.trim()); const area=esc($('salesArea').value); const sub=cart.reduce((s,i)=>s+netPrice(i)*i.qty,0), vat=Math.round(sub*VAT*100)/100, total=sub+vat; const rows=cart.map((it,i)=>{const pr=activePromo(it); const usingPromo=PRICE_MODE==='promo'&&pr; const note=usingPromo?'<span class="quotePromoPrice">מבצע נבחר: '+money(pr.final)+' | '+esc(pr.label||'מבצע')+(pr.qty?' | כמות מבצע: '+pr.qty:'')+'</span>':'מחיר צרכן פחות '+discountPct()+'%'+(pr?' | אופציית מבצע לא נבחרה':''); const method=usingPromo?'מבצע':discountPct()+'%'; return `<tr><td>${i+1}</td><td>${esc(it.sku)}</td><td class="desc">${esc(it.name)}<br><span style="font-size:10px;color:#666">${note}</span></td><td>${it.qty}</td><td>${money(it.price)}</td><td>${method}</td><td>${money(netPrice(it))}</td><td><b>${money(netPrice(it)*it.qty)}</b></td></tr>`}).join(''); let html=`<div class="printPage"><div class="qhead"><div class="qcompany"><b>ונטה שווק (1996) בע״מ</b><br>העבודה 4, ת.ד. 347, רמלה 7255704<br>טלפון: 08-9207004 | פקס: 08-9207005<br>עוסק מורשה: 512306986<br>www.venta.co.il | ventamrk@venta.co.il</div><div class="qlogo">VENTA</div></div><div class="qtitle">הצעת מחיר מספר ${selectedQuoteNumber}</div><div class="qmeta"><div class="dates">תאריך הצעה: ${dateStr(0)}<br>בתוקף עד: ${dateStr(30)}<br>תאריך הדפסה: ${dateStr(0)}</div><div><b>לכבוד:</b><br>${cust}${phone?'<br>טלפון: '+phone:''}${proj?'<br>פרויקט: '+proj:''}${area?'<br>אזור / איש מכירות: '+area:''}</div></div><table class="qtable"><thead><tr><th>#</th><th>מק״ט</th><th>תיאור מוצר</th><th>כמות</th><th>מחיר צרכן</th><th>הנחה</th><th>מחיר אחרי הנחה</th><th>סה״כ</th></tr></thead><tbody>${rows}</tbody></table><table class="qsummary"><tr><td>סכום לפני מע״מ</td><td>${money(sub)}</td></tr><tr><td>מע״מ 18%</td><td>${money(vat)}</td></tr><tr><td>סה״כ כולל מע״מ</td><td>${money(total)}</td></tr></table><div class="terms"><b>תנאי תשלום:</b> תשלום לפני אספקה<br><b>סוכן:</b> ונטה שווק בע״מ<br><b>פרטי חשבון להעברה בנקאית:</b><br>בנק לאומי 10, סניף 707, מס׳ חשבון 11080019<br>לאישור העברה: kabala_venta@venta.co.il<br><br><small>הטובין נשארים בבעלות ונטה שווק (1996) בע״מ עד לפרעון מלא של החשבונית.</small></div><div class="footer">ונטה שווק (1996) בע״מ</div></div>`; const pages=uniqueTechPages(); pages.forEach(pg=>{const src=CATALOG_IMAGES[String(pg)]; html+=src?`<div class="printPage catalogPage"><img class="catalogImg" src="${src}" alt="דף קטלוג ${pg}"></div>`:`<div class="printPage"><div class="techTitle">דף קטלוג ${pg}</div><p>דף הקטלוג לא נמצא בקובץ.</p></div>`}); return html}
+function showPreview(){if($('createQuote').disabled)return; ensureQuoteNumber(); $('pages').innerHTML=buildQuotePages(); $('previewTitle').textContent='הצעת מחיר '+selectedQuoteNumber; $('formView').style.display='none'; $('previewView').style.display='block'; const box=$('quotePdfBox'); if(box){box.style.display='block'; box.innerHTML='נוצרה הצעה מספר <b>'+selectedQuoteNumber+'</b>. אפשר להוריד PDF מהכפתור.';} window.scrollTo(0,0)}
+async function waitImages(root=document){const imgs=[...root.querySelectorAll('img')]; await Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(res=>{img.onload=img.onerror=res; setTimeout(res,4000)})))}
+function dataUrlToBytes(dataUrl){
+  const base64 = dataUrl.split(',')[1] || '';
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return bytes;
+}
+function jpegPixelSize(bytes){
+  // Walks JPEG markers to find the SOF (Start Of Frame) segment, which holds the real width/height.
+  // Falls back to null if parsing fails for any reason - caller should have a safe default.
+  try{
+    let i = 2; // skip initial 0xFFD8
+    while(i < bytes.length){
+      if(bytes[i] !== 0xFF) { i++; continue; }
+      const marker = bytes[i+1];
+      if(marker === 0xD8 || marker === 0x01 || (marker >= 0xD0 && marker <= 0xD9)){ i += 2; continue; }
+      const segLen = (bytes[i+2] << 8) | bytes[i+3];
+      const isSOF = (marker >= 0xC0 && marker <= 0xCF) && marker !== 0xC4 && marker !== 0xC8 && marker !== 0xCC;
+      if(isSOF){
+        const height = (bytes[i+5] << 8) | bytes[i+6];
+        const width = (bytes[i+7] << 8) | bytes[i+8];
+        return { width, height };
+      }
+      i += 2 + segLen;
+    }
+  }catch(e){}
+  return null;
+}
+function loadImage(src){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=()=>reject(new Error('לא ניתן לטעון תמונה: '+String(src||'').slice(0,80)));
+    if(src && !String(src).startsWith('data:')) img.crossOrigin='anonymous';
+    img.src=src;
+  });
+}
+async function pageElementToJpeg(page){
+  const w=794, h=1123;
+  const css = document.querySelector('style').innerHTML + `\nbody{margin:0;background:white}.printPage{margin:0!important;box-shadow:none!important;width:${w}px!important;min-height:${h}px!important;height:${h}px!important;page-break-after:auto!important}.catalogImg{max-width:none!important;width:100%!important;height:100%!important}`;
+  const html = `<style>${css}</style>${page.outerHTML}`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" dir="rtl">${html}</div></foreignObject></svg>`;
+  const url = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}));
+  try{
+    const img = await loadImage(url);
+    const c=document.createElement('canvas'); c.width=w; c.height=h;
+    const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
+    return c.toDataURL('image/jpeg',0.92);
+  } finally { URL.revokeObjectURL(url); }
+}
+async function catalogImageToJpeg(src){
+  // Higher resolution than the standard 794x1123 (96 DPI) page canvas: catalog pages are
+  // photographed/scanned technical sheets that benefit from extra sharpness when printed or
+  // zoomed, unlike the quote page which is vector text and stays sharp regardless of canvas size.
+  const w=1588, h=2246;
+  const img=await loadImage(src);
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+  const scale=Math.min(w/img.naturalWidth, h/img.naturalHeight);
+  const dw=img.naturalWidth*scale, dh=img.naturalHeight*scale;
+  ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh);
+  return c.toDataURL('image/jpeg',0.92);
+}
+async function buildPdfPageImages(){
+  if(!$('pages').innerHTML.trim()) $('pages').innerHTML=buildQuotePages();
+  $('formView').style.display='none'; $('previewView').style.display='block';
+  await waitImages($('pages'));
+  const out=[];
+  for(const page of [...$('pages').querySelectorAll('.printPage')]){
+    const img=page.querySelector('img.catalogImg');
+    if(img && img.src) out.push(await catalogImageToJpeg(img.src));
+    else out.push(await pageElementToJpeg(page));
+  }
+  return out;
+}
+function makePdfFromJpegs(dataUrls){
+  const enc = new TextEncoder();
+  const chunks=[]; let pos=0; const offsets=[0];
+  function addStr(str){const b=enc.encode(str); chunks.push(b); pos+=b.length;}
+  function addBytes(b){chunks.push(b); pos+=b.length;}
+  function obj(n, body){offsets[n]=pos; addStr(n+' 0 obj\n'+body+'\nendobj\n');}
+  const pageW=595.28, pageH=841.89;
+  addStr('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+  const pageCount=dataUrls.length;
+  const pageObjNums=[], contentObjNums=[], imageObjNums=[];
+  let n=3;
+  for(let i=0;i<pageCount;i++){pageObjNums.push(n++); contentObjNums.push(n++); imageObjNums.push(n++);}
+  obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2, '<< /Type /Pages /Count '+pageCount+' /Kids ['+pageObjNums.map(x=>x+' 0 R').join(' ')+'] >>');
+  for(let i=0;i<pageCount;i++){
+    const pno=pageObjNums[i], cno=contentObjNums[i], ino=imageObjNums[i];
+    obj(pno, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /XObject << /Im${i} ${ino} 0 R >> >> /Contents ${cno} 0 R >>`);
+    const content=`q\n${pageW} 0 0 ${pageH} 0 0 cm\n/Im${i} Do\nQ\n`;
+    offsets[cno]=pos; addStr(`${cno} 0 obj\n<< /Length ${content.length} >>\nstream\n${content}endstream\nendobj\n`);
+    const bytes=dataUrlToBytes(dataUrls[i]);
+    const dims=jpegPixelSize(bytes) || {width:794, height:1123};
+    offsets[ino]=pos;
+    addStr(`${ino} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${dims.width} /Height ${dims.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`);
+    addBytes(bytes); addStr('\nendstream\nendobj\n');
+  }
+  const xref=pos;
+  addStr('xref\n0 '+(n)+'\n0000000000 65535 f \n');
+  for(let i=1;i<n;i++) addStr(String(offsets[i]).padStart(10,'0')+' 00000 n \n');
+  addStr('trailer\n<< /Size '+n+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF');
+  return new Blob(chunks,{type:'application/pdf'});
+}
+
+function drawRoundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+function drawText(ctx,text,x,y,maxW,lineH,opts={}){
+  ctx.save();
+  ctx.direction=opts.dir||'rtl'; ctx.textAlign=opts.align||'right'; ctx.textBaseline='top';
+  ctx.font=(opts.bold?'700 ':'400 ')+(opts.size||18)+'px Arial, Helvetica, sans-serif';
+  ctx.fillStyle=opts.color||'#111';
+  const words=String(text||'').split(/\s+/).filter(Boolean); let line='', lines=[];
+  for(const w of words){const test=line?line+' '+w:w; if(ctx.measureText(test).width>maxW && line){lines.push(line); line=w;} else line=test;}
+  if(line) lines.push(line); if(!lines.length) lines=[''];
+  lines.slice(0, opts.maxLines||99).forEach((ln,i)=>ctx.fillText(ln,x,y+i*lineH));
+  ctx.restore(); return Math.min(lines.length, opts.maxLines||99)*lineH;
+}
+function makeWhiteCanvas(){const c=document.createElement('canvas'); c.width=794; c.height=1123; const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); return [c,ctx];}
+function canvasToJpeg(c){return c.toDataURL('image/jpeg',0.94)}
+function currentQuoteItems(){return cart.map(it=>({...it, qty:Number(it.qty)||1, techPages:[...(it.techPages||[])]}));}
+function uniqueTechPagesFor(items){const s=new Set(); (items||[]).forEach(p=>(p.techPages||[]).forEach(pg=>{pg=Number(pg); if(pg>=1)s.add(pg)})); return [...s].sort((a,b)=>a-b)}
+function buildQuoteCanvasJpeg(items){
+  items = items || currentQuoteItems();
+  if(!selectedQuoteNumber) selectedQuoteNumber=quoteNum();
+  const [c,ctx]=makeWhiteCanvas();
+  ctx.direction='rtl'; ctx.textAlign='right'; ctx.textBaseline='top';
+  ctx.fillStyle='#11395b'; ctx.font='700 30px Arial'; ctx.fillText('VENTA',735,35);
+  drawText(ctx,'ונטה שווק (1996) בע״מ\nהעבודה 4, ת.ד. 347, רמלה 7255704\nטלפון: 08-9207004 | פקס: 08-9207005\nעוסק מורשה: 512306986\nwww.venta.co.il | ventamrk@venta.co.il',390,28,360,18,{size:15,bold:true,maxLines:5});
+  ctx.strokeStyle='#bbb'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(45,125); ctx.lineTo(750,125); ctx.stroke();
+  ctx.fillStyle='#111'; ctx.font='700 24px Arial'; ctx.textAlign='center'; ctx.fillText('הצעת מחיר מספר '+selectedQuoteNumber,397,150);
+  ctx.font='400 16px Arial'; ctx.textAlign='right';
+  const cust=$('customerName').value.trim(); const phone=$('customerPhone').value.trim(); const proj=$('projectName').value.trim(); const area=$('salesArea').value;
+  drawText(ctx,'לכבוד:\n'+cust+(phone?'\nטלפון: '+phone:'')+(proj?'\nפרויקט: '+proj:'')+(area?'\nאזור / איש מכירות: '+area:''),735,195,310,22,{size:17,bold:false,maxLines:6});
+  ctx.textAlign='left'; ctx.direction='ltr'; ctx.font='400 15px Arial';
+  ctx.fillText('תאריך הצעה: '+dateStr(0),55,195); ctx.fillText('בתוקף עד: '+dateStr(30),55,218); ctx.fillText('תאריך הדפסה: '+dateStr(0),55,241);
+  ctx.direction='rtl'; ctx.textAlign='right';
+  let y=290; const cols=[45,100,205,355,410,485,565,660,750];
+  ctx.fillStyle='#e7edf4'; ctx.fillRect(cols[0],y,cols[8]-cols[0],30); ctx.strokeStyle='#333'; ctx.lineWidth=1;
+  const heads=['#','מק״ט','תיאור מוצר','כמות','מחיר צרכן','הנחה','מחיר אחרי הנחה','סה״כ'];
+  ctx.font='700 13px Arial'; ctx.fillStyle='#111';
+  for(let i=0;i<8;i++){ctx.strokeRect(cols[i],y,cols[i+1]-cols[i],30); ctx.textAlign='center'; ctx.fillText(heads[i],(cols[i]+cols[i+1])/2,y+7)}
+  y+=30; ctx.font='400 12px Arial';
+  items.forEach((it,idx)=>{const h=48; ctx.fillStyle=idx%2?'#fafafa':'#fff'; ctx.fillRect(cols[0],y,cols[8]-cols[0],h); ctx.fillStyle='#111'; for(let i=0;i<8;i++)ctx.strokeRect(cols[i],y,cols[i+1]-cols[i],h); ctx.textAlign='center'; ctx.fillText(String(idx+1),(cols[0]+cols[1])/2,y+15); ctx.fillText(String(it.sku),(cols[1]+cols[2])/2,y+15); ctx.textAlign='right'; drawText(ctx,it.name,cols[3]-7,y+7,cols[3]-cols[2]-12,15,{size:12,maxLines:2}); ctx.textAlign='center'; ctx.fillText(String(it.qty),(cols[3]+cols[4])/2,y+15); ctx.fillText(money(it.price),(cols[4]+cols[5])/2,y+15); ctx.fillText((PRICE_MODE==='promo'&&activePromo(it))?'מבצע':discountPct()+'%',(cols[5]+cols[6])/2,y+15); ctx.fillText(money(netPrice(it)),(cols[6]+cols[7])/2,y+15); ctx.font='700 12px Arial'; ctx.fillText(money(netPrice(it)*it.qty),(cols[7]+cols[8])/2,y+15); ctx.font='400 12px Arial'; y+=h;});
+  const sub=items.reduce((s,i)=>s+netPrice(i)*i.qty,0), vat=Math.round(sub*VAT*100)/100, total=sub+vat;
+  y+=22; const sx=45, sw=285, rh=30; const labels=[['סכום לפני מע״מ',money(sub)],['מע״מ 18%',money(vat)],['סה״כ כולל מע״מ',money(total)]];
+  labels.forEach((r,i)=>{ctx.fillStyle=i==2?'#d9e1ea':'#f3f3f3'; ctx.fillRect(sx,y+i*rh,sw,rh); ctx.strokeRect(sx,y+i*rh,sw,rh); ctx.fillStyle='#111'; ctx.font=(i==2?'700 ':'400 ')+'15px Arial'; ctx.textAlign='right'; ctx.fillText(r[0],sx+sw-12,y+i*rh+7); ctx.textAlign='left'; ctx.fillText(r[1],sx+12,y+i*rh+7);});
+  y+=115; ctx.font='400 15px Arial'; ctx.textAlign='right'; ctx.fillStyle='#111';
+  drawText(ctx,'תנאי תשלום: תשלום לפני אספקה\nסוכן: ונטה שווק בע״מ\nפרטי חשבון להעברה בנקאית: בנק לאומי 10, סניף 707, מס׳ חשבון 11080019\nלאישור העברה: kabala_venta@venta.co.il\nהטובין נשארים בבעלות ונטה שווק (1996) בע״מ עד לפרעון מלא של החשבונית.',735,y,690,21,{size:15,maxLines:7});
+  ctx.strokeStyle='#ccc'; ctx.beginPath(); ctx.moveTo(45,1065); ctx.lineTo(750,1065); ctx.stroke(); ctx.textAlign='center'; ctx.font='700 14px Arial'; ctx.fillText('ונטה שווק (1996) בע״מ',397,1085);
+  return canvasToJpeg(c);
+}
+function buildOrderCanvasJpeg(order, bo){
+  const [c,ctx]=makeWhiteCanvas();
+  ctx.direction='rtl'; ctx.textAlign='right'; ctx.textBaseline='top';
+  ctx.fillStyle='#11395b'; ctx.font='700 30px Arial'; ctx.fillText('VENTA',735,35);
+  drawText(ctx,'ונטה שווק (1996) בע״מ\nהעבודה 4, ת.ד. 347, רמלה 7255704\nטלפון: 08-9207004 | פקס: 08-9207005\nעוסק מורשה: 512306986\nwww.venta.co.il | ventamrk@venta.co.il',390,28,360,18,{size:15,bold:true,maxLines:5});
+  ctx.strokeStyle='#bbb'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(45,125); ctx.lineTo(750,125); ctx.stroke();
+  ctx.fillStyle='#111'; ctx.font='700 24px Arial'; ctx.textAlign='center'; ctx.fillText('הזמנה לבק אופיס'+(order.quoteNumber?' - הצעה '+order.quoteNumber:''),397,150);
+  ctx.font='400 16px Arial'; ctx.textAlign='right';
+  drawText(ctx,'לכבוד:\n'+(bo?bo.label:'בק אופיס')+(bo?'\n'+bo.email:''),735,195,310,22,{size:17,bold:false,maxLines:6});
+  ctx.textAlign='left'; ctx.direction='ltr'; ctx.font='400 15px Arial';
+  ctx.fillText('תאריך הזמנה: '+(order.createdAt||dateStr(0)),55,195);
+  ctx.direction='rtl'; ctx.textAlign='right'; ctx.font='400 16px Arial';
+  let infoY=250;
+  const infoLines=[];
+  infoLines.push('לקוח: '+(order.customer||'-'));
+  if(order.phone) infoLines.push('טלפון: '+order.phone);
+  if(order.project) infoLines.push('פרויקט: '+order.project);
+  if(order.area) infoLines.push('אזור / איש מכירות: '+order.area);
+  if(order.note) infoLines.push('הערה: '+order.note);
+  infoY += drawText(ctx, infoLines.join('\n'), 750, infoY, 690, 20, {size:15, maxLines:6});
+  let y=infoY+15; const cols=[45,100,205,420,540,660,750];
+  ctx.fillStyle='#e7edf4'; ctx.fillRect(cols[0],y,cols[6]-cols[0],30); ctx.strokeStyle='#333'; ctx.lineWidth=1;
+  const heads=['#','מק״ט','תיאור מוצר','כמות','מחיר ליח׳','סה״כ'];
+  ctx.font='700 13px Arial'; ctx.fillStyle='#111';
+  for(let i=0;i<6;i++){ctx.strokeRect(cols[i],y,cols[i+1]-cols[i],30); ctx.textAlign='center'; ctx.fillText(heads[i],(cols[i]+cols[i+1])/2,y+7)}
+  y+=30; ctx.font='400 12px Arial';
+  const items=order.items||[];
+  items.forEach((it,idx)=>{
+    const h=48; ctx.fillStyle=idx%2?'#fafafa':'#fff'; ctx.fillRect(cols[0],y,cols[6]-cols[0],h); ctx.fillStyle='#111';
+    for(let i=0;i<6;i++)ctx.strokeRect(cols[i],y,cols[i+1]-cols[i],h);
+    ctx.textAlign='center'; ctx.fillText(String(idx+1),(cols[0]+cols[1])/2,y+15);
+    ctx.fillText(String(it.sku),(cols[1]+cols[2])/2,y+15);
+    ctx.textAlign='right'; drawText(ctx,it.name,cols[3]-7,y+7,cols[3]-cols[2]-12,15,{size:12,maxLines:2});
+    ctx.textAlign='center'; ctx.fillText(String(it.qty),(cols[3]+cols[4])/2,y+15);
+    ctx.fillText(money(it.unitPrice)+(it.priceMethod?' ('+it.priceMethod+')':''),(cols[4]+cols[5])/2,y+15);
+    ctx.font='700 12px Arial'; ctx.fillText(money(it.unitPrice*it.qty),(cols[5]+cols[6])/2,y+15); ctx.font='400 12px Arial';
+    y+=h;
+  });
+  if(!items.length){
+    ctx.textAlign='center'; ctx.font='400 14px Arial'; ctx.fillText('לא נמצאו מוצרים בהזמנה.',(cols[0]+cols[6])/2,y+20); y+=40;
+  }
+  y+=22; const sx=465, sw=285, rh=30;
+  ctx.fillStyle='#d9e1ea'; ctx.fillRect(sx,y,sw,rh); ctx.strokeStyle='#333'; ctx.strokeRect(sx,y,sw,rh);
+  ctx.fillStyle='#111'; ctx.font='700 15px Arial'; ctx.textAlign='right'; ctx.fillText('סה״כ לפני מע״מ',sx+sw-12,y+7);
+  ctx.textAlign='left'; ctx.fillText(money(order.total),sx+12,y+7);
+  ctx.strokeStyle='#ccc'; ctx.beginPath(); ctx.moveTo(45,1065); ctx.lineTo(750,1065); ctx.stroke();
+  ctx.textAlign='center'; ctx.font='700 14px Arial'; ctx.fillStyle='#111'; ctx.fillText('ונטה שווק (1996) בע״מ',397,1085);
+  return canvasToJpeg(c);
+}
+function buildTechCanvasJpeg(items){
+  items = items || currentQuoteItems();
+  const [c,ctx]=makeWhiteCanvas(); ctx.direction='rtl'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillStyle='#11395b'; ctx.font='700 28px Arial'; ctx.fillText('דף ניתוח טכני להצעה',397,45);
+  ctx.fillStyle='#111'; ctx.font='400 17px Arial'; ctx.fillText('דפי הקטלוג המצורפים מבוססים על התאמת המוצרים שנבחרו למחירון וקטלוג Venta 2025.',397,90);
+  let y=145; const cols=[50,160,440,540,650,744]; ctx.fillStyle='#e7edf4'; ctx.fillRect(cols[0],y,cols[5]-cols[0],32); ctx.strokeStyle='#333'; ctx.lineWidth=1;
+  ['מק״ט','מוצר','ספיקה','הספק','עמודי קטלוג'].forEach((h,i)=>{ctx.strokeRect(cols[i],y,cols[i+1]-cols[i],32); ctx.font='700 13px Arial'; ctx.fillStyle='#111'; ctx.textAlign='center'; ctx.fillText(h,(cols[i]+cols[i+1])/2,y+8)}); y+=32;
+  items.forEach((it,idx)=>{const h=54; ctx.fillStyle=idx%2?'#fafafa':'#fff'; ctx.fillRect(cols[0],y,cols[5]-cols[0],h); for(let i=0;i<5;i++)ctx.strokeRect(cols[i],y,cols[i+1]-cols[i],h); ctx.fillStyle='#111'; ctx.font='400 12px Arial'; ctx.textAlign='center'; ctx.fillText(String(it.sku),(cols[0]+cols[1])/2,y+18); ctx.textAlign='right'; drawText(ctx,it.name,cols[2]-8,y+8,cols[2]-cols[1]-16,15,{size:12,maxLines:2}); ctx.textAlign='center'; ctx.fillText(it.airflow||'לבדיקה',(cols[2]+cols[3])/2,y+18); ctx.fillText(it.power||'לבדיקה',(cols[3]+cols[4])/2,y+18); ctx.fillText((it.techPages||[]).join(', ')||'ללא',(cols[4]+cols[5])/2,y+18); y+=h;});
+  const pages=uniqueTechPagesFor(items); y+=35; ctx.textAlign='right'; drawText(ctx,'עמודי קטלוג מצורפים: '+(pages.length?pages.join(', '):'לא נמצאה התאמה אוטומטית'),735,y,690,22,{size:18,bold:true});
+  y+=60; [['מחירון','מחירי צרכן ממחירון 2025, הנחה נבחרת לפני מע״מ.'],['מע״מ','18% מחושב על סכום נטו לאחר הנחה.'],['דפים טכניים','דפי הקטלוג הרלוונטיים מצורפים אחרי עמוד זה.']].forEach(box=>{drawRoundRect(ctx,90,y,615,75,12); ctx.fillStyle='#f8fbff'; ctx.fill(); ctx.strokeStyle='#b8c8dc'; ctx.stroke(); ctx.fillStyle='#11395b'; ctx.textAlign='right'; ctx.font='700 17px Arial'; ctx.fillText(box[0],675,y+14); drawText(ctx,box[1],675,y+40,560,20,{size:15}); y+=95;});
+  ctx.strokeStyle='#ccc'; ctx.beginPath(); ctx.moveTo(45,1065); ctx.lineTo(750,1065); ctx.stroke(); ctx.textAlign='center'; ctx.font='700 14px Arial'; ctx.fillStyle='#111'; ctx.fillText('דף ניתוח טכני - Venta',397,1085);
+  return canvasToJpeg(c);
+}
+function buildMissingCatalogCanvasJpeg(pg){const [c,ctx]=makeWhiteCanvas(); ctx.fillStyle='#11395b'; ctx.font='700 28px Arial'; ctx.textAlign='center'; ctx.direction='rtl'; ctx.fillText('דף קטלוג '+pg,397,120); ctx.fillStyle='#333'; ctx.font='400 18px Arial'; ctx.fillText('הדף לא נמצא בממשק.',397,170); return canvasToJpeg(c)}
+async function buildCanvasPdfPageImages(){
+  const items=currentQuoteItems();
+  if(!items.length) throw new Error('לא נבחרו מוצרים');
+  if(!$('customerName').value.trim()) throw new Error('חסר שם לקוח');
+  if(!$('salesArea').value) throw new Error('חסר אזור / איש מכירות');
+  // Always rebuild from the current cart snapshot, not from an old preview.
+  ensureQuoteNumber();
+  const out=[buildQuoteCanvasJpeg(items)];
+  for(const pg of uniqueTechPagesFor(items)){
+    const src=CATALOG_IMAGES[String(pg)];
+    out.push(src ? await catalogImageToJpeg(src) : buildMissingCatalogCanvasJpeg(pg));
+  }
+  return out;
+}
+
+
+function ensureDownloadStatus(){
+  let box=document.getElementById('downloadStatus');
+  if(!box){
+    box=document.createElement('div');
+    box.id='downloadStatus';
+    box.style.cssText='position:fixed;left:16px;bottom:16px;z-index:99999;background:#fff;border:2px solid #1a4a7a;border-radius:12px;padding:12px 14px;box-shadow:0 8px 30px rgba(0,0,0,.25);font-family:Arial;direction:rtl;text-align:right;max-width:360px;display:none';
+    document.body.appendChild(box);
+  }
+  return box;
+}
+async function saveBlobReliable(blob, filename, mime, openedWindow, label){
+  filename = filename || 'venta_quote.pdf';
+  mime = mime || blob.type || 'application/octet-stream';
+  label = label || 'PDF';
+  const box=ensureDownloadStatus();
+  box.style.display='block';
+  box.innerHTML=`${label} מוכן. אם ההורדה לא נפתחה, לחץ על הכפתור למטה.`;
+  const url=URL.createObjectURL(blob);
+
+  // כפתור הורדה קבוע וברור
+  const direct=document.createElement('a');
+  direct.href=url; direct.download=filename; direct.textContent=`הורד ${label} עכשיו`;
+  direct.style.cssText='display:inline-block;margin-top:8px;background:#1a4a7a;color:white;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:900';
+  box.appendChild(document.createElement('br'));
+  box.appendChild(direct);
+
+  // אם פתחנו חלון בתחילת הלחיצה - נטען בו את ה-PDF כדי לעקוף חסימות הורדה
+  if(openedWindow && !openedWindow.closed){
+    try{
+      openedWindow.location.href=url;
+      openedWindow.document.title=filename;
+    }catch(e){}
+  }
+
+  // ניסיון הורדה קלאסי
+  const a=document.createElement('a');
+  a.href=url; a.download=filename; a.rel='noopener';
+  a.style.display='none'; document.body.appendChild(a);
+  try{ a.click(); }catch(e){}
+  setTimeout(()=>{ try{a.remove()}catch(e){} },2000);
+  setTimeout(()=>{ try{URL.revokeObjectURL(url)}catch(e){} },180000);
+  return true;
+}
+
+async function printPdf(){
+  const btn=$('pdfBtn') || $('mainPdfBtn'); const old=btn ? btn.textContent : '';
+  // חלון נפתח מיד מתוך לחיצת המשתמש. אחרי שה-PDF מוכן נטען אותו לשם.
+  let pdfWindow=null;
+  try{ pdfWindow=window.open('about:blank','_blank'); if(pdfWindow){pdfWindow.document.write('<!doctype html><html dir="rtl"><body style="font-family:Arial;text-align:center;padding:40px">יוצר PDF...</body></html>'); pdfWindow.document.close();} }catch(e){}
+  try{
+    ensureQuoteNumber();
+    if(btn){btn.disabled=true; btn.textContent='יוצר PDF...';}
+    const quoteHtml=buildQuotePages();
+    if($('pages')) $('pages').innerHTML=quoteHtml;
+    $('formView').style.display='none'; $('previewView').style.display='block';
+    const imgs=await buildCanvasPdfPageImages();
+    const pdf=makePdfFromJpegs(imgs);
+    const firstSku=(cart[0]&&cart[0].sku)?String(cart[0].sku):'quote';
+    await saveBlobReliable(pdf, `venta_quote_${selectedQuoteNumber||quoteNum()}_${firstSku}.pdf`, 'application/pdf', pdfWindow);
+    const box=$('quotePdfBox'); if(box){box.style.display='block'; box.innerHTML='PDF מוכן להצעה מספר <b>'+selectedQuoteNumber+'</b>. אם לא ירד אוטומטית, השתמש בכפתור הכחול למטה.';}
+  }catch(err){
+    try{ if(pdfWindow && !pdfWindow.closed) pdfWindow.close(); }catch(e){}
+    try{ openQuoteHtml(); }catch(_){}
+    alert('לא ניתן ליצור PDF אוטומטי. נפתח/ירד קובץ HTML להצעה שאפשר להדפיס ל-PDF. פרטים: '+err.message);
+  }finally{if(btn){btn.disabled=false; btn.textContent=old;}}
+}
+function buildOrderPayload(){
+  const items = currentQuoteItems().map(it=>{
+    const pr = activePromo(it);
+    const usingPromo = PRICE_MODE==='promo' && pr;
+    return {
+      sku: it.sku, name: it.name, qty: Number(it.qty)||1,
+      unitPrice: netPrice(it),
+      priceMethod: usingPromo ? 'מבצע' : (discountPct()+'%')
+    };
+  });
+  const total = items.reduce((s,it)=>s+it.unitPrice*it.qty,0);
+  return {
+    quoteNumber: selectedQuoteNumber || '',
+    customer: ($('customerName').value||'').trim(),
+    phone: ($('customerPhone').value||'').trim(),
+    project: ($('projectName').value||'').trim(),
+    area: ($('salesArea').value||'').trim(),
+    items, total,
+    createdAt: new Date().toLocaleString('he-IL')
+  };
+}
+
+function openQuoteHtml(){
+  try{
+    selectedQuoteNumber = selectedQuoteNumber || quoteNum();
+    if(!$('pages').innerHTML.trim()) $('pages').innerHTML = buildQuotePages();
+    const styles = document.querySelector('style').innerHTML;
+    const quoteMarkup = $('pages').innerHTML;
+    const orderPayloadJson = JSON.stringify(buildOrderPayload()).replace(/<\/script/gi,'<\\/script');
+    const html = `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Venta Quote ${selectedQuoteNumber||''}</title><style>${styles}
+body{background:#fff!important;padding:0!important}.toolbar{display:none!important}.preview{display:block!important;max-width:none!important;margin:0!important;border:0!important;box-shadow:none!important}.pages{display:block!important}.printPage{box-shadow:none!important;margin:0 auto 10px!important}</style>
+<style>
+${VENTA_ORDER_EMAIL_CSS}
+</style>
+</head><body><section class="preview"><div class="pages">${quoteMarkup}</div></section>
+<script>
+window.VENTA_ORDER_DATA = ${orderPayloadJson};
+<\/script>
+<script>
+${VENTA_ORDER_EMAIL_JS}
+<\/script>
+</body></html>`;
+    const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if(!win){
+      saveBlobReliable(blob, `venta_quote_${selectedQuoteNumber||'draft'}.html`, 'text/html');
+      alert('הדפדפן חסם פתיחת חלון. יצרתי קישור הורדה ידני.');
+    }
+    setTimeout(()=>URL.revokeObjectURL(url), 60000);
+  }catch(err){
+    alert('לא ניתן לפתוח HTML להצעה: '+err.message);
+  }
+}
+
+const DEFAULT_PRODUCTS_JSON = JSON.stringify(PRODUCTS);
+const PRODUCT_STORE_KEY = 'ventaProducts_v2';
+function loadSavedProducts(){
+  try{const raw=localStorage.getItem(PRODUCT_STORE_KEY); if(raw){const arr=JSON.parse(raw); if(Array.isArray(arr)&&arr.length) PRODUCTS=arr;}}catch(e){console.warn('product load failed',e)}
+}
+
+function loadSettingsLocal(){
+  try{const raw=localStorage.getItem(SETTINGS_STORE_KEY); if(raw){APP_SETTINGS={...APP_SETTINGS,...JSON.parse(raw)}}}catch(e){}
+  VAT=(Number(APP_SETTINGS.vat)||18)/100;
+}
+function saveSettingsLocal(){localStorage.setItem(SETTINGS_STORE_KEY, JSON.stringify(APP_SETTINGS)); loadSettingsLocal(); updateCounts();}
+function loadCatalogLocal(){try{const raw=localStorage.getItem(CATALOG_STORE_KEY); if(raw){Object.assign(CATALOG_IMAGES, JSON.parse(raw));}}catch(e){console.warn('catalog load failed',e)}}
+function saveCatalogLocal(){const extra={}; Object.keys(CATALOG_IMAGES).forEach(k=>{if(Number(k)>114 || String(CATALOG_IMAGES[k]).startsWith('data:')) extra[k]=CATALOG_IMAGES[k];}); localStorage.setItem(CATALOG_STORE_KEY, JSON.stringify(extra)); updateCounts();}
+function exportAllData(){const data={products:PRODUCTS,settings:APP_SETTINGS,catalogImages:CATALOG_IMAGES,exportedAt:new Date().toISOString()}; saveBlobReliable(new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'}),'venta_full_data.json','application/json');}
+function importAllDataFile(file){const r=new FileReader(); r.onload=()=>{try{const data=JSON.parse(r.result); if(Array.isArray(data)){PRODUCTS=data.map(normalizeProduct).filter(p=>p.sku&&p.name);} else {if(Array.isArray(data.products)) PRODUCTS=data.products.map(normalizeProduct).filter(p=>p.sku&&p.name); if(data.settings) APP_SETTINGS={...APP_SETTINGS,...data.settings}; if(data.catalogImages) Object.assign(CATALOG_IMAGES,data.catalogImages);} saveSettingsLocal(); saveCatalogLocal(); saveProducts(); alert('ייבוא נתונים מלא הושלם');}catch(e){alert('ייבוא נכשל: '+e.message)}}; r.readAsText(file,'utf-8');}
+async function saveProductsToServer(){
+  const pass=localStorage.getItem('VENTA_ADMIN_PASSWORD')||'';
+  if(!pass) return;
+  try{
+    const r=await fetch('/api/data',{method:'POST',headers:{'Content-Type':'application/json','x-admin-password':pass},body:JSON.stringify({products:PRODUCTS,settings:APP_SETTINGS,catalogImages:CATALOG_IMAGES})});
+    if($('serverStatus')) $('serverStatus').textContent=r.ok?'נשמר בשרת':'שמירה לשרת נכשלה';
+  }catch(e){if($('serverStatus')) $('serverStatus').textContent='מצב מקומי בלבד';}
+}
+async function loadDataFromServer(){
+  try{
+    const r=await fetch('/api/data',{cache:'no-store'});
+    if(!r.ok) throw new Error('no data api');
+    const data=await r.json();
+    if(Array.isArray(data.products)){PRODUCTS=data.products.map(normalizeProduct).filter(p=>p.sku&&p.name); localStorage.setItem(PRODUCT_STORE_KEY, JSON.stringify(PRODUCTS));}
+    if(data.settings){APP_SETTINGS={...APP_SETTINGS,...data.settings}; saveSettingsLocal();}
+    if(data.catalogImages){Object.assign(CATALOG_IMAGES,data.catalogImages); saveCatalogLocal();}
+    if($('serverStatus')) $('serverStatus').textContent='נטען מהשרת';
+    updateCounts(); renderProducts(); renderCart(); if($('adminRows')) renderAdminRows(); if(typeof renderCatalogRows==='function') renderCatalogRows(); if(typeof fillSettingsForm==='function') fillSettingsForm();
+  }catch(e){
+    try{await loadProductsFromServer();}catch(_){}
+    if($('serverStatus')) $('serverStatus').textContent='מצב מקומי';
+  }
+}
+function applyUiSettings(){
+  const n=APP_SETTINGS.pricebookName||'מחיר צרכן';
+  document.querySelectorAll('#pricebookLabel').forEach(x=>x.textContent=n);
+  const cc=$('catalogCountMain'); if(cc) cc.textContent=Object.keys(CATALOG_IMAGES).length;
+}
+
+function saveProducts(){localStorage.setItem(PRODUCT_STORE_KEY, JSON.stringify(PRODUCTS)); updateCounts(); renderProducts(); if($('adminRows')) renderAdminRows(); renderCart(); saveProductsToServer();}
+function updateCounts(){const active=PRODUCTS.filter(p=>activePromo(p)).length; if($('productCount')) $('productCount').textContent=PRODUCTS.length; if($('topCount')) $('topCount').textContent=PRODUCTS.length+' מוצרים | '+active+' מבצעים | '+Object.keys(CATALOG_IMAGES).length+' דפי קטלוג'; if($('promoCount')) $('promoCount').textContent=active+' מבצעים פעילים';}
+function parsePages(v){return String(v||'').split(/[ ,]+/).map(x=>Number(x.trim())).filter(n=>Number.isFinite(n)&&n>=1&&n<=114);}
+function adminClear(){['admSku','admName','admCategory','admSize','admAirflow','admPower','admWarranty','admPrice','admTechPages','admPromoType','admPromoValue','admPromoQty','admPromoStart','admPromoEnd','admPromoLabel'].forEach(id=>$(id).value=''); $('admSku').disabled=false; $('admSku').focus();}
+function adminFill(sku){const p=PRODUCTS.find(x=>String(x.sku)===String(sku)); if(!p)return; $('admSku').value=p.sku||''; $('admSku').disabled=true; $('admName').value=p.name||''; $('admCategory').value=p.category||''; $('admSize').value=p.size||''; $('admAirflow').value=p.airflow||''; $('admPower').value=p.power||''; $('admWarranty').value=p.warranty||''; $('admPrice').value=p.price||0; $('admTechPages').value=(p.techPages||[]).join(', '); const pr=p.promo||{}; $('admPromoType').value=pr.type||''; $('admPromoValue').value=pr.value||''; $('admPromoQty').value=pr.qty||''; $('admPromoStart').value=pr.start||''; $('admPromoEnd').value=pr.end||''; $('admPromoLabel').value=pr.label||''; window.scrollTo({top:$('adminPanel').offsetTop-10,behavior:'smooth'});}
+
+function cleanPromo(promo){
+  if(!promo || !promo.type) return null;
+  const type = String(promo.type||'').trim();
+  const value = Number(promo.value);
+  if(!['percent','fixed'].includes(type)) return null;
+  if(!Number.isFinite(value) || value <= 0) return null;
+  if(type === 'percent' && value >= 100) throw new Error('אחוז מבצע חייב להיות קטן מ-100');
+  return {
+    type,
+    value,
+    start: String(promo.start||'').trim(),
+    end: String(promo.end||'').trim(),
+    label: String(promo.label||'מבצע').trim() || 'מבצע',
+    qty: promo.qty===''||promo.qty==null ? 0 : Math.max(0, Math.floor(Number(promo.qty)||0))
+  };
+}
+function normalizeProduct(p){
+  const product = {
+    sku: String(p && p.sku || '').trim(),
+    name: String(p && p.name || '').trim(),
+    category: String(p && p.category || '').trim(),
+    size: String(p && p.size || '').trim(),
+    airflow: String(p && p.airflow || '').trim(),
+    power: String(p && p.power || '').trim(),
+    warranty: String(p && p.warranty || '').trim(),
+    price: Number(p && p.price || 0),
+    techPages: Array.isArray(p && p.techPages) ? p.techPages.map(Number).filter(n=>Number.isFinite(n)) : parsePages(p && p.techPages || ''),
+    promo: null
+  };
+  try{ product.promo = cleanPromo(p && p.promo); }catch(e){ product.promo = null; }
+  return product;
+}
+function refreshCartProduct(updatedProduct){
+  cart = cart.map(item => String(item.sku) === String(updatedProduct.sku) ? {...updatedProduct, qty:item.qty||1} : item);
+}
+
+function adminProductFromForm(){
+  const sku=$('admSku').value.trim(), name=$('admName').value.trim();
+  if(!sku||!name) throw new Error('חובה להזין מק״ט ושם מוצר');
+  const price=Number($('admPrice').value||0); if(!Number.isFinite(price)||price<0) throw new Error('מחיר לא תקין');
+  const promoTypeRaw=norm($('admPromoType').value);
+  let promoType='';
+  if(['percent','אחוז','%','הנחה'].includes(promoTypeRaw)) promoType='percent';
+  if(['fixed','price','מחיר','מחיר מבצע'].includes(promoTypeRaw)) promoType='fixed';
+  const promoValue=$('admPromoValue').value===''?'':Number($('admPromoValue').value);
+  if(promoType && promoValue==='') throw new Error('נבחר סוג מבצע אבל חסר ערך מבצע');
+  if(!promoType && promoValue!=='') throw new Error('הוזן ערך מבצע אבל לא נבחר סוג מבצע');
+  const promoQty=$('admPromoQty').value===''?'':Number($('admPromoQty').value);
+  if(promoQty!=='' && promoQty<1) throw new Error('כמות למבצע חייבת להיות 1 ומעלה');
+  const promo=cleanPromo({type:promoType,value:promoValue,qty:promoQty,start:$('admPromoStart').value,label:$('admPromoLabel').value.trim(),end:$('admPromoEnd').value});
+  return {sku,name,category:$('admCategory').value.trim(),size:$('admSize').value.trim(),airflow:$('admAirflow').value.trim(),power:$('admPower').value.trim(),warranty:$('admWarranty').value.trim(),price,techPages:parsePages($('admTechPages').value),promo};
+}
+function renderAdminRows(){
+  if(!$('adminRows')) return; const q=norm($('adminSearch')?$('adminSearch').value:''); const words=q.split(' ').filter(Boolean); const pf=$('adminPromoFilter')?$('adminPromoFilter').value:'all';
+  const list=PRODUCTS.filter(p=>{const hasPromo=!!activePromo(p); if(pf==='promo'&&!hasPromo) return false; if(pf==='noPromo'&&hasPromo) return false; return !words.length||words.every(w=>norm(p.name).includes(w)||norm(p.sku).includes(w)||norm(p.category).includes(w)||norm(promoText(p)).includes(w));}).slice(0,400);
+  $('adminRows').innerHTML=list.map(p=>`<tr><td>${esc(p.sku)}</td><td>${esc(p.name)}</td><td>${esc(p.category||'')}</td><td>${money(p.price||0)}</td><td>${esc(promoText(p)||'')}</td><td>${esc((p.techPages||[]).join(', '))}</td><td><button data-edit-product="${esc(p.sku)}">ערוך</button> <button data-delete-product="${esc(p.sku)}" style="background:#ffecec;color:#a52828">מחק</button></td></tr>`).join('') || '<tr><td colspan="7" class="empty">לא נמצאו מוצרים</td></tr>';
+}
+function showAdmin(){ $('formView').style.display='none'; $('previewView').style.display='none'; $('adminPanel').classList.add('show'); renderAdminRows(); window.scrollTo(0,0);}
+function hideAdmin(){ $('adminPanel').classList.remove('show'); $('formView').style.display='grid'; window.scrollTo(0,0);}
+function exportProducts(){const blob=new Blob([JSON.stringify(PRODUCTS,null,2)],{type:'application/json;charset=utf-8'}); saveBlobReliable(blob,'venta_products_data.json','application/json');}
+function importProductsFile(file){const r=new FileReader(); r.onload=()=>{try{const arr=JSON.parse(r.result); if(!Array.isArray(arr)) throw new Error('הקובץ אינו רשימת מוצרים'); PRODUCTS=arr.map(normalizeProduct).filter(p=>p.sku&&p.name); saveProducts(); alert('הייבוא הושלם: '+PRODUCTS.length+' מוצרים');}catch(e){alert('ייבוא נכשל: '+e.message)}}; r.readAsText(file,'utf-8');}
+
+
+function parsePromoType(v){const x=norm(v); if(['percent','אחוז','%','הנחה'].includes(x)) return 'percent'; if(['fixed','price','מחיר','מחיר מבצע'].includes(x)) return 'fixed'; return '';}
+function splitCsvLine(line){return line.split(',').map(x=>x.trim());}
+function applyBulkPromos(){
+  const raw=$('bulkPromos').value.trim(); if(!raw){alert('אין נתוני מבצעים להכניס'); return;}
+  let updated=0, skipped=[];
+  raw.split(/\n+/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
+    const parts=line.split(',').map(x=>x.trim());
+    const sku=parts[0], type=parsePromoType(parts[1]), value=Number(parts[2]);
+    if(!sku||!type||!isFinite(value)){skipped.push(sku||line); return;}
+    let qty='', start='', end='', labelParts=[];
+    const fourth=parts[3]||'';
+    const looksDate=/^\d{4}-\d{2}-\d{2}$/.test(fourth);
+    if(fourth && !looksDate && isFinite(Number(fourth))){
+      qty=Math.max(1, Math.floor(Number(fourth)));
+      start=parts[4]||''; end=parts[5]||''; labelParts=parts.slice(6);
+    } else {
+      start=parts[3]||''; end=parts[4]||''; labelParts=parts.slice(5);
+    }
+    const p=PRODUCTS.find(x=>String(x.sku)===String(sku)); if(!p){skipped.push(sku); return;}
+    p.promo={type,value,qty,start:start||'',end:end||'',label:(labelParts.join(',').trim()||'מבצע')};
+    updated++;
+  });
+  saveProducts(); cart=cart.map(it=>PRODUCTS.find(p=>p.sku===it.sku)?{...PRODUCTS.find(p=>p.sku===it.sku),qty:it.qty}:it); applyPromoQuantities(); renderProducts(); renderCart(); renderAdminRows(); updateCounts();
+  alert('עודכנו '+updated+' מבצעים'+(skipped.length?' | דולגו: '+skipped.join(', '):''));
+}
+function sampleBulkPromos(){
+  $('bulkPromos').value='130499000, percent, 20, 5, 2026-06-01, 2026-06-30, מבצע קיץ\n130699000, fixed, 399, , , מחיר מיוחד\n130899000, percent, 15, , , מבצע מלאי';
+}
+function removeAllPromos(){if(confirm('למחוק את כל המבצעים מכל המוצרים?')){PRODUCTS.forEach(p=>p.promo=null); saveProducts(); renderAdminRows(); updateCounts();}}
+function exportPromos(){const promos=PRODUCTS.filter(p=>p.promo).map(p=>({sku:p.sku,name:p.name,promo:p.promo})); const blob=new Blob([JSON.stringify(promos,null,2)],{type:'application/json;charset=utf-8'}); saveBlobReliable(blob,'venta_promotions.json','application/json');}
+
+document.addEventListener('click',e=>{
+  const disc=e.target.closest('.discBtn');
+  if(disc){setDiscount(disc.dataset.disc); return;}
+  const pfBtn=e.target.closest('[data-product-filter]');
+  if(pfBtn){PRODUCT_FILTER=pfBtn.dataset.productFilter; document.querySelectorAll('[data-product-filter]').forEach(b=>b.classList.toggle('active',b===pfBtn)); renderProducts(); return;}
+  const edit=e.target.dataset.editProduct, delp=e.target.dataset.deleteProduct;
+  if(edit){adminFill(edit); return;}
+  if(delp){if(confirm('למחוק מוצר '+delp+'?')){PRODUCTS=PRODUCTS.filter(x=>String(x.sku)!==String(delp)); cart=cart.filter(x=>String(x.sku)!==String(delp)); saveProducts();} return;}
+  const prod=e.target.closest('.product');
+  if(prod){addProduct(prod.dataset.sku); return;}
+  const inc=e.target.dataset.inc, dec=e.target.dataset.dec, del=e.target.dataset.del;
+  if(inc){const it=cart.find(x=>x.sku===inc); if(it){it.qty++;renderCart(); if($('previewView').style.display==='block') $('pages').innerHTML=buildQuotePages();}}
+  if(dec){const it=cart.find(x=>x.sku===dec); if(it){it.qty--; if(it.qty<1)cart=cart.filter(x=>x.sku!==dec); renderCart(); if($('previewView').style.display==='block') $('pages').innerHTML=buildQuotePages();}}
+  if(del){cart=cart.filter(x=>x.sku!==del); renderCart(); if($('previewView').style.display==='block') $('pages').innerHTML=buildQuotePages();}
+});
+loadSettingsLocal();
+loadCatalogLocal();
+loadSavedProducts();
+loadDataFromServer();
+$('searchInput').addEventListener('input',renderProducts); $('customerName').addEventListener('input',checkReady); $('salesArea').addEventListener('change',checkReady); $('clearSearch').onclick=()=>{$('searchInput').value='';renderProducts()}; $('createQuote').onclick=showPreview; $('backBtn').onclick=()=>{$('previewView').style.display='none';$('formView').style.display='grid'}; $('pdfBtn').onclick=printPdf; if($('mainPdfBtn')) $('mainPdfBtn').onclick=async()=>{if(!$('previewView').style.display||$('previewView').style.display==='none') showPreview(); await printPdf();}; $('htmlBtn').onclick=openQuoteHtml; $('resetAll').onclick=()=>{cart=[]; selectedQuoteNumber=''; ['customerName','customerPhone','projectName','searchInput','salesArea'].forEach(id=>$(id).value=''); const box=$('quotePdfBox'); if(box){box.style.display='none'; box.innerHTML='';} renderProducts();renderCart()};
+
+updateCounts(); renderProducts(); renderCart();
+
+</script>
+
+<script>
+/* VENTA_ORDER_EMAIL_MODULE - shared CSS/JS injected into both the live app and the exported quote HTML */
+const VENTA_BACKOFFICES = {
+  ramla:   { label: "בק אופיס רמלה",   email: "office_venta@venta.co.il" },
+  karmiel: { label: "בק אופיס כרמיאל", email: "lilach@venta.co.il" }
+};
+
+const VENTA_ORDER_EMAIL_CSS = `
+.venta-order-email-box{direction:rtl;margin:18px 0 0;padding:16px;border:2px solid #173f63;border-radius:14px;background:#f8fbff;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.venta-order-email-box h3{margin:0 0 10px;color:#173f63;font-size:17px;font-weight:900}
+.venta-order-email-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.venta-order-email-box select,.venta-order-email-box input{width:100%;padding:11px 12px;border:1.5px solid #cfd8e3;border-radius:10px;font-size:14px;font-family:inherit;background:white}
+.venta-order-email-box select:focus,.venta-order-email-box input:focus{outline:none;border-color:#1d5b92;box-shadow:0 0 0 3px rgba(30,90,145,.12)}
+.venta-order-email-box button{padding:12px 14px;border:0;border-radius:10px;font-weight:900;cursor:pointer;font-size:14px}
+.venta-order-email-box .venta-order-actions{display:flex;gap:10px;margin-top:10px}
+.venta-order-email-box .venta-order-actions button{flex:1}
+#ventaCreateOrderBtn{background:#173f63;color:white}
+#ventaSendOrderEmailBtn{background:#b91c1c;color:white}
+#ventaOrderMailStatus{margin-top:10px;color:#475569;font-weight:700;font-size:13px}
+.venta-order-summary{font-size:12px;color:#5a6b7a;margin-top:4px}
+@media(max-width:700px){.venta-order-email-grid{grid-template-columns:1fr}}
+`;
+
+/* Self-contained script injected into the exported standalone quote HTML (no app state available there,
+   so it reads the order data that was baked in as window.VENTA_ORDER_DATA at export time). */
+const VENTA_ORDER_EMAIL_JS = `
+(function(){
+  function money(n){ const x=Number(n||0); try{ return x.toLocaleString("he-IL")+" ₪"; }catch(e){ return x+" ₪"; } }
+  function buildMailBody(order, bo){
+    const lines = [];
+    lines.push("הזמנה חדשה מ-Venta");
+    lines.push("");
+    if(order.quoteNumber) lines.push("מספר הצעה: " + order.quoteNumber);
+    lines.push("תאריך: " + order.createdAt);
+    lines.push("");
+    lines.push("לקוח: " + (order.customer || "-"));
+    if(order.phone) lines.push("טלפון: " + order.phone);
+    if(order.project) lines.push("פרויקט: " + order.project);
+    if(order.area) lines.push("אזור / איש מכירות: " + order.area);
+    if(order.note) lines.push("הערה: " + order.note);
+    lines.push("");
+    lines.push("מוצרים:");
+    if(order.items && order.items.length){
+      order.items.forEach(function(it, idx){
+        lines.push((idx+1) + ". " + it.name + " | מק״ט: " + it.sku + " | כמות: " + it.qty + " | מחיר ליח׳ (" + it.priceMethod + "): " + money(it.unitPrice) + " | סה״כ: " + money(it.unitPrice*it.qty));
+      });
+    } else {
+      lines.push("לא נמצאו מוצרים בהצעה.");
+    }
+    lines.push("");
+    lines.push("סה״כ לפני מע״מ: " + money(order.total));
+    if(bo){
+      lines.push("");
+      lines.push("נשלח אל: " + bo.label);
+    }
+    return lines.join("\\n");
+  }
+  function downloadTextFile(text, filename){
+    try{
+      const blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename; a.rel = "noopener";
+      a.style.display = "none"; document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){ try{ a.remove(); }catch(e){} }, 2000);
+      setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(e){} }, 180000);
+    }catch(e){}
+  }
+  var BACKOFFICES = {
+    ramla:   { label: "בק אופיס רמלה",   email: "office_venta@venta.co.il" },
+    karmiel: { label: "בק אופיס כרמיאל", email: "lilach@venta.co.il" }
+  };
+  function mount(){
+    var pages = document.querySelector(".pages");
+    if(!pages) return;
+    var box = document.createElement("section");
+    box.className = "venta-order-email-box";
+    box.innerHTML = '<h3>הזמנה לבק אופיס</h3>'
+      + '<div class="venta-order-email-grid">'
+      + '<select id="ventaBackofficeSelect"><option value="">בחר בק אופיס</option>'
+      + '<option value="ramla">בק אופיס רמלה - office_venta@venta.co.il</option>'
+      + '<option value="karmiel">בק אופיס כרמיאל - lilach@venta.co.il</option></select>'
+      + '<input id="ventaOrderNote" placeholder="הערה להזמנה - אופציונלי">'
+      + '</div>'
+      + '<div class="venta-order-actions">'
+      + '<button type="button" id="ventaCreateOrderBtn">צור הזמנה</button>'
+      + '<button type="button" id="ventaSendOrderEmailBtn">שלח הזמנה במייל</button>'
+      + '</div><div id="ventaOrderMailStatus"></div>';
+    pages.parentElement.insertBefore(box, pages.nextSibling);
+
+    var noteEl = box.querySelector("#ventaOrderNote");
+    var selEl = box.querySelector("#ventaBackofficeSelect");
+    var statusEl = box.querySelector("#ventaOrderMailStatus");
+    var order = window.VENTA_ORDER_DATA || { items: [], total: 0, createdAt: "" };
+
+    box.querySelector("#ventaCreateOrderBtn").onclick = function(){
+      if(!order.items.length){ alert("לא נמצאו מוצרים בהצעה."); return; }
+      order.note = (noteEl.value||"").trim();
+      statusEl.innerHTML = "הזמנה מוכנה" + (order.quoteNumber ? " להצעה <b>"+order.quoteNumber+"</b>" : "") + ". " + order.items.length + " פריטים | סה״כ לפני מע״מ: <b>" + money(order.total) + "</b>";
+      var fileText = buildMailBody(order);
+      var safeId = (order.quoteNumber || ("ORD-" + Date.now())).replace(/[^\\w\\-]+/g, "_");
+      downloadTextFile(fileText, "venta_order_" + safeId + ".txt");
+    };
+    box.querySelector("#ventaSendOrderEmailBtn").onclick = function(){
+      var key = selEl.value;
+      if(!key || !BACKOFFICES[key]){ alert("בחר בק אופיס לשליחה"); return; }
+      var bo = BACKOFFICES[key];
+      order.note = (noteEl.value||"").trim();
+      if(!order.items.length && !confirm("לא נמצאו מוצרים בהצעה. לשלוח בכל זאת?")) return;
+      var fileText = buildMailBody(order, bo);
+      var safeId = (order.quoteNumber || ("ORD-" + Date.now())).replace(/[^\\w\\-]+/g, "_");
+      downloadTextFile(fileText, "venta_order_" + safeId + ".txt");
+      var subject = encodeURIComponent("הזמנה חדשה" + (order.quoteNumber ? " - הצעה " + order.quoteNumber : "") + (order.customer ? " - " + order.customer : ""));
+      var body = encodeURIComponent(fileText);
+      window.location.href = "mailto:" + bo.email + "?subject=" + subject + "&body=" + body;
+      statusEl.textContent = "נפתח מייל והורד קובץ הזמנה עבור " + bo.label;
+    };
+  }
+  document.addEventListener("DOMContentLoaded", mount);
+})();
+`;
+
+function ventaMoney(n){
+  const x = Number(n || 0);
+  try { return x.toLocaleString("he-IL") + " ₪"; } catch(e){ return x + " ₪"; }
+}
+
+function ventaBuildMailBody(order, bo){
+  const lines = [];
+  lines.push("הזמנה חדשה מ-Venta");
+  lines.push("");
+  if(order.quoteNumber) lines.push("מספר הצעה: " + order.quoteNumber);
+  lines.push("תאריך: " + order.createdAt);
+  lines.push("");
+  lines.push("לקוח: " + (order.customer || "-"));
+  if(order.phone) lines.push("טלפון: " + order.phone);
+  if(order.project) lines.push("פרויקט: " + order.project);
+  if(order.area) lines.push("אזור / איש מכירות: " + order.area);
+  if(order.note) lines.push("הערה: " + order.note);
+  lines.push("");
+  lines.push("מוצרים:");
+  if(order.items && order.items.length){
+    order.items.forEach((it, idx)=>{
+      lines.push(`${idx+1}. ${it.name} | מק״ט: ${it.sku} | כמות: ${it.qty} | מחיר ליח׳ (${it.priceMethod}): ${ventaMoney(it.unitPrice)} | סה״כ: ${ventaMoney(it.unitPrice*it.qty)}`);
+    });
+  } else {
+    lines.push("לא נמצאו מוצרים בהצעה.");
+  }
+  lines.push("");
+  lines.push("סה״כ לפני מע״מ: " + ventaMoney(order.total));
+  if(bo){
+    lines.push("");
+    lines.push("נשלח אל: " + bo.label);
+  }
+  return lines.join("\n");
+}
+
+function ventaRenderOrderSummary(order){
+  if(!order.items || !order.items.length) return "<div class=\"venta-order-summary\">עדיין לא נבחרו מוצרים בהצעה.</div>";
+  return `<div class="venta-order-summary">${order.items.length} פריטים בהצעה | סה״כ לפני מע״מ: <b>${ventaMoney(order.total)}</b></div>`;
+}
+
+const VENTA_ORDER_EMAIL_HTML = function(suffix){
+  return `
+  <h3>הזמנה לבק אופיס</h3>
+  <div class="venta-order-email-grid">
+    <select id="ventaBackofficeSelect-${suffix}">
+      <option value="">בחר בק אופיס</option>
+      <option value="ramla">בק אופיס רמלה - office_venta@venta.co.il</option>
+      <option value="karmiel">בק אופיס כרמיאל - lilach@venta.co.il</option>
+    </select>
+    <input id="ventaOrderNote-${suffix}" placeholder="הערה להזמנה - אופציונלי">
+  </div>
+  <div class="venta-order-actions">
+    <button type="button" id="ventaCreateOrderBtn-${suffix}">צור הזמנה</button>
+    <button type="button" id="ventaSendOrderEmailBtn-${suffix}">שלח הזמנה במייל</button>
+  </div>
+  <div id="ventaOrderMailStatus-${suffix}"></div>
+`;
+};
+
+function ventaMountOrderBox(containerId, getOrderFn){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  if(container.querySelector(".venta-order-email-box")) return;
+
+  const suffix = containerId;
+  const box = document.createElement("section");
+  box.className = "venta-order-email-box";
+  box.innerHTML = VENTA_ORDER_EMAIL_HTML(suffix);
+  container.appendChild(box);
+
+  const noteEl = box.querySelector("#ventaOrderNote-" + suffix);
+  const selEl = box.querySelector("#ventaBackofficeSelect-" + suffix);
+  const statusEl = box.querySelector("#ventaOrderMailStatus-" + suffix);
+
+  box.querySelector("#ventaCreateOrderBtn-" + suffix).onclick = async function(){
+    const order = getOrderFn();
+    if(!order.items.length){ alert("לא נבחרו מוצרים בהצעה."); return; }
+    order.note = (noteEl.value||"").trim();
+    statusEl.innerHTML = "מכין PDF להזמנה" + (order.quoteNumber ? " להצעה <b>"+order.quoteNumber+"</b>" : "") + "...";
+    try{
+      const jpeg = buildOrderCanvasJpeg(order);
+      const pdf = makePdfFromJpegs([jpeg]);
+      const safeId = (order.quoteNumber || ("ORD-" + Date.now())).replace(/[^\w\-]+/g, "_");
+      await saveBlobReliable(pdf, `venta_order_${safeId}.pdf`, "application/pdf", null, "PDF הזמנה");
+      statusEl.innerHTML = "הזמנה מוכנה" + (order.quoteNumber ? " להצעה <b>"+order.quoteNumber+"</b>" : "") + ". " + ventaRenderOrderSummary(order);
+    }catch(err){
+      statusEl.textContent = "שגיאה ביצירת PDF להזמנה: " + err.message;
+    }
+  };
+
+  box.querySelector("#ventaSendOrderEmailBtn-" + suffix).onclick = async function(){
+    const key = selEl.value;
+    if(!key || !VENTA_BACKOFFICES[key]){ alert("בחר בק אופיס לשליחה"); return; }
+    const bo = VENTA_BACKOFFICES[key];
+    const order = getOrderFn();
+    order.note = (noteEl.value||"").trim();
+    if(!order.items.length && !confirm("לא נמצאו מוצרים בהצעה. לשלוח בכל זאת?")) return;
+
+    try{
+      const jpeg = buildOrderCanvasJpeg(order, bo);
+      const pdf = makePdfFromJpegs([jpeg]);
+      const safeId = (order.quoteNumber || ("ORD-" + Date.now())).replace(/[^\w\-]+/g, "_");
+      await saveBlobReliable(pdf, `venta_order_${safeId}.pdf`, "application/pdf", null, "PDF הזמנה");
+    }catch(err){
+      statusEl.textContent = "שגיאה ביצירת PDF להזמנה: " + err.message;
+    }
+
+    const subject = encodeURIComponent("הזמנה חדשה" + (order.quoteNumber ? " - הצעה " + order.quoteNumber : "") + (order.customer ? " - " + order.customer : ""));
+    const body = encodeURIComponent(ventaBuildMailBody(order, bo));
+    window.location.href = `mailto:${bo.email}?subject=${subject}&body=${body}`;
+    statusEl.textContent = "נפתח מייל והורד PDF הזמנה עבור " + bo.label;
+  };
+}
+
+// Mount immediately: the DOM elements (#ventaOrderBoxForm / #ventaOrderBoxPreview) are already
+// in the page by the time this script runs, since this script tag comes after them in the HTML.
+// We do NOT wait for DOMContentLoaded here - that event has very likely already fired by now
+// (the previous script block is large), so a listener registered at this point would never run.
+ventaMountOrderBox("ventaOrderBoxForm", buildOrderPayload);
+ventaMountOrderBox("ventaOrderBoxPreview", buildOrderPayload);
+</script>
+
+</body>
+</html>
