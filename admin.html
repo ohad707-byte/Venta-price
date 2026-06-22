@@ -30,6 +30,7 @@
 
 .adminLogin{position:fixed;inset:0;background:linear-gradient(135deg,#173e61,#0b1f32);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}.loginBox{background:white;border-radius:18px;max-width:420px;width:100%;padding:24px;box-shadow:0 20px 70px rgba(0,0,0,.3)}.loginBox h2{margin:0 0 12px;color:#173e61}.loginBox input{width:100%;padding:13px;border:1px solid #ccd6e2;border-radius:12px;font-size:16px}.loginBox button{width:100%;margin-top:12px;border:0;border-radius:12px;background:#173e61;color:white;font-weight:900;padding:13px;cursor:pointer}.loginErr{color:#b83232;font-weight:800;margin-top:8px;min-height:20px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body><div class="adminLogin" id="adminLogin"><div class="loginBox"><h2>כניסת מנהל</h2><div class="notice">רק מנהל יכול לעדכן מוצרים ומבצעים. אנשי מכירות משתמשים ב־index.html בלבד.</div><input id="adminPass" type="password" placeholder="סיסמת מנהל"><button id="adminLoginBtn" type="button">כניסה לדשבורד</button><div class="loginErr" id="loginErr"></div></div></div>
 <div class="appbar"><div class="wrap"><div><div class="logo">VENTA</div><div class="sub">ממשק הצעות מחיר לצרכן עם בחירת הנחה</div></div><div style="display:flex;gap:10px;align-items:center"><button class="adminToggle" id="adminToggle" type="button">דשבורד ניהול</button><div id="topCount"></div></div></div></div>
@@ -473,27 +474,34 @@ function loadCatalogLocal(){try{const raw=localStorage.getItem(CATALOG_STORE_KEY
 function saveCatalogLocal(){const extra={}; Object.keys(CATALOG_IMAGES).forEach(k=>{if(Number(k)>114 || String(CATALOG_IMAGES[k]).startsWith('data:')) extra[k]=CATALOG_IMAGES[k];}); localStorage.setItem(CATALOG_STORE_KEY, JSON.stringify(extra)); updateCounts();}
 function exportAllData(){const data={products:PRODUCTS,settings:APP_SETTINGS,catalogImages:CATALOG_IMAGES,exportedAt:new Date().toISOString()}; saveBlobReliable(new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'}),'venta_full_data.json','application/json');}
 function importAllDataFile(file){const r=new FileReader(); r.onload=()=>{try{const data=JSON.parse(r.result); if(Array.isArray(data)){PRODUCTS=data.map(normalizeProduct).filter(p=>p.sku&&p.name);} else {if(Array.isArray(data.products)) PRODUCTS=data.products.map(normalizeProduct).filter(p=>p.sku&&p.name); if(data.settings) APP_SETTINGS={...APP_SETTINGS,...data.settings}; if(data.catalogImages) Object.assign(CATALOG_IMAGES,data.catalogImages);} saveSettingsLocal(); saveCatalogLocal(); saveProducts(); alert('ייבוא נתונים מלא הושלם');}catch(e){alert('ייבוא נכשל: '+e.message)}}; r.readAsText(file,'utf-8');}
+const VENTA_SUPABASE_URL='https://jwfxxnouottskpnlbmqx.supabase.co';
+const VENTA_SUPABASE_KEY='sb_publishable_E99spbUmQ_NEjNDVQI_ERw_A08d8fHO';
+const ventaSupabase=(typeof supabase!=='undefined')?supabase.createClient(VENTA_SUPABASE_URL,VENTA_SUPABASE_KEY):null;
 async function saveProductsToServer(){
   const pass=localStorage.getItem('VENTA_ADMIN_PASSWORD')||'';
   if(!pass) return;
+  if(!ventaSupabase){if($('serverStatus')) $('serverStatus').textContent='מצב מקומי בלבד'; return;}
   try{
-    const r=await fetch('/api/data',{method:'POST',headers:{'Content-Type':'application/json','x-admin-password':pass},body:JSON.stringify({products:PRODUCTS,settings:APP_SETTINGS,catalogImages:CATALOG_IMAGES})});
-    if($('serverStatus')) $('serverStatus').textContent=r.ok?'נשמר בשרת':'שמירה לשרת נכשלה';
-  }catch(e){if($('serverStatus')) $('serverStatus').textContent='מצב מקומי בלבד';}
+    const {error}=await ventaSupabase.from('venta_data').update({
+      products:PRODUCTS, settings:APP_SETTINGS, catalog_images:CATALOG_IMAGES, updated_at:new Date().toISOString()
+    }).eq('id',1);
+    if(error) throw error;
+    if($('serverStatus')) $('serverStatus').textContent='נשמר בשרת (משותף לכל המכשירים)';
+  }catch(e){if($('serverStatus')) $('serverStatus').textContent='שמירה לשרת נכשלה - מצב מקומי בלבד';}
 }
 async function loadDataFromServer(){
+  if(!ventaSupabase){if($('serverStatus')) $('serverStatus').textContent='מצב מקומי'; return;}
   try{
-    const r=await fetch('/api/data',{cache:'no-store'});
-    if(!r.ok) throw new Error('no data api');
-    const data=await r.json();
-    if(Array.isArray(data.products)){PRODUCTS=data.products.map(normalizeProduct).filter(p=>p.sku&&p.name); localStorage.setItem(PRODUCT_STORE_KEY, JSON.stringify(PRODUCTS));}
+    const {data,error}=await ventaSupabase.from('venta_data').select('products,settings,catalog_images').eq('id',1).single();
+    if(error) throw error;
+    if(Array.isArray(data.products)&&data.products.length){PRODUCTS=data.products.map(normalizeProduct).filter(p=>p.sku&&p.name); localStorage.setItem(PRODUCT_STORE_KEY, JSON.stringify(PRODUCTS));}
     if(data.settings){APP_SETTINGS={...APP_SETTINGS,...data.settings}; saveSettingsLocal();}
-    if(data.catalogImages){Object.assign(CATALOG_IMAGES,data.catalogImages); saveCatalogLocal();}
-    if($('serverStatus')) $('serverStatus').textContent='נטען מהשרת';
+    if(data.catalog_images){Object.assign(CATALOG_IMAGES,data.catalog_images); saveCatalogLocal();}
+    if($('serverStatus')) $('serverStatus').textContent='נטען מהשרת המשותף';
     updateCounts(); renderProducts(); renderCart(); if($('adminRows')) renderAdminRows(); if(typeof renderCatalogRows==='function') renderCatalogRows(); if(typeof fillSettingsForm==='function') fillSettingsForm();
   }catch(e){
     try{await loadProductsFromServer();}catch(_){}
-    if($('serverStatus')) $('serverStatus').textContent='מצב מקומי';
+    if($('serverStatus')) $('serverStatus').textContent='מצב מקומי (לא ניתן להתחבר לשרת המשותף)';
   }
 }
 function applyUiSettings(){
